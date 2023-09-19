@@ -1,2 +1,2 @@
 # kl_scripts
-for very little and sick in the head
+for very small and mentally ill
