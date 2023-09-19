@@ -1,0 +1,51 @@
+function HEXTOBIN(hex) {
+    const hexDigits = "0123456789ABCDEF";
+    let binary = "";
+
+    for (let i = 0; i < hex.length; i++) {
+        const hexChar = hex.charAt(i);
+        const index = hexDigits.indexOf(hexChar.toUpperCase());
+        if (index !== -1) {
+            binary += index.toString(2).padStart(4, "0");
+        }
+    }
+
+    return binary;
+}
+
+function FINDERRORCODES(input) {
+    const errorCodes = [];
+
+    for (let i = 0; i < input.length - 1; i++) {
+        const binary1 = HEXTOBIN(input.charAt(i));
+        const binary2 = HEXTOBIN(input.charAt(i + 1));
+
+        let errorCodesStr = "";
+        for (let j = 0; j < binary1.length; j++) {
+            if (binary1.charAt(j) !== binary2.charAt(j)) {
+                errorCodesStr += "1";
+            } else {
+                errorCodesStr += "0";
+            }
+        }
+
+        errorCodes.push([input.charAt(i) + "->" + input.charAt(i + 1), errorCodesStr]);
+    }
+
+    return errorCodes;
+}
+
+function INSERTERRORCODES() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const inputRange = sheet.getRange("A1").getValue(); // Change this to the appropriate range of your data
+
+    if (!inputRange) {
+        Logger.log("Input data is empty or undefined.");
+        return;
+    }
+
+    const errorCodes = FINDERRORCODES(inputRange);
+
+    const outputRange = sheet.getRange(2, 1, errorCodes.length, 2);
+    outputRange.setValues(errorCodes);
+}
