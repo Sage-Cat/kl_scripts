@@ -1,5 +1,5 @@
-// Функція HEXTOBIN перетворює шістнадцятковий рядок в бінарний
-function HEXTOBIN(hex) {
+// Функція HEX_TO_BIN перетворює шістнадцятковий рядок в бінарний
+function HEX_TO_BIN(hex) {
     const hexDigits = "0123456789ABCDEF"; // Спісок символів для шістнадцяткового числа
     let binary = ""; // Рядок для зберігання бінарного представлення
 
@@ -23,8 +23,8 @@ function FINDERRORCODES(input) {
 
     // Проходимо по послідовності
     for (let i = 0; i < input.length - 1; i++) {
-        const binary1 = HEXTOBIN(input.charAt(i)); // Бінарне представлення першого символу
-        const binary2 = HEXTOBIN(input.charAt(i + 1)); // Бінарне представлення другого символу
+        const binary1 = HEX_TO_BIN(input.charAt(i)); // Бінарне представлення першого символу
+        const binary2 = HEX_TO_BIN(input.charAt(i + 1)); // Бінарне представлення другого символу
 
         let errorCodesStr = ""; // Рядок для зберігання помилкових кодів
         for (let j = 0; j < binary1.length; j++) {
