@@ -1,90 +1,87 @@
-// Function to validate hexadecimal input
-function isValidHex(hex) {
-    const hexRegex = /^[0-9A-Fa-f]{16}$/; // 16-character hexadecimal
-    return hexRegex.test(hex);
-}
-
-// Function to convert hexadecimal to binary
 function hexToBin(hex) {
-    const hexToBinMap = {
-        '0': '0000',
-        '1': '0001',
-        '2': '0010',
-        '3': '0011',
-        '4': '0100',
-        '5': '0101',
-        '6': '0110',
-        '7': '0111',
-        '8': '1000',
-        '9': '1001',
-        'A': '1010',
-        'a': '1010',
-        'B': '1011',
-        'b': '1011',
-        'C': '1100',
-        'c': '1100',
-        'D': '1101',
-        'd': '1101',
-        'E': '1110',
-        'e': '1110',
-        'F': '1111',
-        'f': '1111'
-    };
+  const hexToBinMap = {
+    '0': '0000',
+    '1': '0001',
+    '2': '0010',
+    '3': '0011',
+    '4': '0100',
+    '5': '0101',
+    '6': '0110',
+    '7': '0111',
+    '8': '1000',
+    '9': '1001',
+    'A': '1010',
+    'a': '1010',
+    'B': '1011',
+    'b': '1011',
+    'C': '1100',
+    'c': '1100',
+    'D': '1101',
+    'd': '1101',
+    'E': '1110',
+    'e': '1110',
+    'F': '1111',
+    'f': '1111'
+  };
 
-    let bin = '';
-    for (let i = 0; i < hex.length; i++) {
-        const hexChar = hex[i];
-        if (hexToBinMap.hasOwnProperty(hexChar)) {
-            bin += hexToBinMap[hexChar];
-        } else {
-            console.error("Invalid hexadecimal character: " + hexChar);
-            return '';
-        }
+  let bin = '';
+  for (let i = 0; i < hex.length; i++) {
+    const hexChar = hex[i];
+    if (hexToBinMap.hasOwnProperty(hexChar)) {
+      bin += hexToBinMap[hexChar];
+    } else {
+      return '';
     }
-    return bin;
+  }
+  return bin;
 }
 
-// Function to generate erroneous codes
 function generateErroneousCodes(inputHex) {
-    const inputText = hexToBin(inputHex);
-    const erroneousCodes = [];
+  const inputText = hexToBin(inputHex);
+  const erroneousCodes = [];
 
-    if (inputText.length !== 16) {
-        console.log("Input text must be 16 bits long.");
-        return erroneousCodes;
-    }
-
-    for (let i = 0; i < inputText.length - 1; i++) {
-        let code = inputText;
-        // Flip the bits between i and i+1
-        code = code.substring(0, i) + (code[i] === '0' ? '1' : '0') + (code[i + 1] === '0' ? '1' : '0') + code.substring(i + 2);
-        erroneousCodes.push((i + 1) + "->" + (i + 2) + " : " + code);
-    }
-
+  if (inputText.length !== 16) {
     return erroneousCodes;
+  }
+
+  for (let i = 0; i < inputText.length - 1; i++) {
+    let code = inputText;
+    // Flip the bits between i and i+1
+    code = code.substring(0, i) + (code[i] === '0' ? '1' : '0') + (code[i + 1] === '0' ? '1' : '0') + code.substring(i + 2);
+    erroneousCodes.push((i + 1) + "->" + (i + 2) + " : " + code);
+  }
+
+  return erroneousCodes;
 }
 
-const readline = require('readline');
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('Hexadecimal Converter')
+    .addItem('Generate Erroneous Codes', 'showDialog')
+    .addToUi();
+}
 
-rl.question("Enter a hexadecimal sequence (16 bits): ", (inputHex) => {
-    if (!isValidHex(inputHex)) {
-        console.log("Invalid input. Please enter a 16-character hexadecimal sequence.");
-        rl.close();
-        return;
-    }
+function showDialog() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.prompt('Enter a hexadecimal sequence (16 bits):', '');
 
-    const erroneousCodes = generateErroneousCodes(inputHex);
+  if (response.getSelectedButton() === ui.Button.OK) {
+    var inputHex = response.getResponseText();
 
-    if (erroneousCodes.length > 0) {
-        console.log("Erroneous Codes:");
-        for (const code of erroneousCodes) {
-            console.log(code);
+    if (inputHex.length === 16) {
+      var erroneousCodes = generateErroneousCodes(inputHex);
+
+      if (erroneousCodes.length > 0) {
+        var output = 'Erroneous Codes:\n';
+        for (var i = 0; i < erroneousCodes.length; i++) {
+          output += erroneousCodes[i] + '\n';
         }
+        ui.alert(output);
+      } else {
+        ui.alert('Invalid input. Please enter a 16-character hexadecimal sequence.');
+      }
+    } else {
+      ui.alert('Invalid input length. Please enter a 16-character hexadecimal sequence.');
     }
-
-    rl.close();
-});
+  }
+}
