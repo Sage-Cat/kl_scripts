@@ -1,5 +1,11 @@
-// Функція GetEntropy призначена для обчислення ентропії масиву чисел.
-function GetEntropy(arr) {
+/**
+ * Функція GET_ENTROPY призначена для обчислення ентропії масиву чисел.
+ * @customfunction
+ * @param {number[]} arr ймовірностей зустріти символ у повідомленні
+ * @return {number|string}entropy ентропія
+ *
+ */
+function GET_ENTROPY(arr) {
     // Перевірка, чи аргумент є масивом
     if (Array.isArray(arr)) {
         let entropy = 0;
@@ -15,12 +21,18 @@ function GetEntropy(arr) {
     }
 }
 
-// Функція GetAverageLength обчислює середню довжину рядків у відповідності до їх шансів.
-function GetAverageLength(CodeArr, ChanceArr) {
+/**
+ * Функція GET_AVERAGE_LENGTH обчислює середню довжину рядків у відповідності до їх шансів.
+ * @customfunction
+ * @param {string[]} CodeArr масив кодів у текстовому представленні "0010"
+ * @param {number[]} ChanceArr масив ймовірностей зустріти літеру у повідомленні
+ * @return {number|string} averageLength середня довжина повідолмення
+ */
+function GET_AVERAGE_LENGTH(CodeArr, ChanceArr) {
     if (
         Array.isArray(CodeArr) &&
         Array.isArray(ChanceArr) &&
-        CodeArr.length == ChanceArr.length
+        CodeArr.length === ChanceArr.length
     ) {
         let averageLength = 0;
         // Обчислення середньої довжини
@@ -34,9 +46,18 @@ function GetAverageLength(CodeArr, ChanceArr) {
     }
 }
 
-// Функція TestHemmingCode перевіряє рядок на наявність помилок за алгоритмом кодування геммінга(Hemming).
-function TestHemmingCode(code) {
-    if (typeof code == "string") {
+/** Функція TEST_HEMMING_CODE перевіряє рядок на наявність помилок за алгоритмом кодування геммінга(Hemming).
+ *
+ * @param {string} code Код Геммінга, що мість помилку
+ * @return {number|string} номер розряду, що містить помилку
+ */
+function TEST_HEMMING_CODE(code) {
+    if (typeof code !== "string") {
+        // Якщо вхідний аргумент не є рядком, повертається "NaN".
+        return "NaN";
+    }
+    else if(code.length === 21)
+    {
         let arr = [0];
         // Перетворення рядка у масив бітів
         for (let i = 0; i < code.length; ++i)
@@ -58,8 +79,7 @@ function TestHemmingCode(code) {
             + (k1 + arr[1]) % 2;
         // Перетворення результату у десяткове число
         return parseInt(res, 2);
-    } else {
-        // Якщо вхідний аргумент не є рядком, повертається "NaN".
-        return "NaN";
     }
+    else
+        return "Неправильна довжина коду (16 інформційних розрядів + 5 контрольних)";
 }
