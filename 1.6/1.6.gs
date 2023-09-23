@@ -1,60 +1,68 @@
-function HEX2BIN_EXTENDED(hexString) {
-  if (hexString === undefined || hexString === null || typeof hexString !== "string") {
-    return "Invalid input";
-  }
-
-  var parts = hexString.split(",");
-  if (parts.length !== 2) {
-    return "Invalid input format. Please use the format 'X,Y' where X and Y are hexadecimal numbers.";
-  }
-
-  var integerPart = parseInt(parts[0], 16);
-  if (isNaN(integerPart)) {
-    return "Invalid integer part";
-  }
-  var integerBinary = integerPart.toString(2);
-
-  var fractionalPart = parseInt(parts[1], 16) / Math.pow(16, parts[1].length);
-  var fractionalBinary = '';
-  for (var i = 0; i < 5; i++) {
-    fractionalPart *= 2;
-    fractionalBinary += Math.floor(fractionalPart).toString();
-    fractionalPart -= Math.floor(fractionalPart);
-
-    if (fractionalPart === 0) {
-      break;
+function CAL_HAM_COD(data) {
+    const n = data.length;
+    let k = 0;
+    while (Math.pow(2, k) < n + k + 1) {
+        k++;
     }
-  }
 
-  return integerBinary + ',' + fractionalBinary;
+    let hammingCode = '0'.repeat(n + k);
+
+    for (let i = 0; i < k; i++) {
+        const parityBitIndex = Math.pow(2, i) - 1;
+
+        for (let j = parityBitIndex; j < n + k; j += Math.pow(2, i + 1)) {
+            for (let l = 0; l < Math.pow(2, i); l++) {
+                if (j + l < n + k) {
+                    if (data[j + l] === '1') {
+                        hammingCode = hammingCode.substr(0, parityBitIndex) +
+                            (hammingCode[parityBitIndex] === '0' ? '1' : '0') +
+                            hammingCode.substr(parityBitIndex + 1);
+                    }
+                }
+            }
+        }
+    }
+
+    return hammingCode;
 }
 
-function HEX2BIN_ONLY_INT(hex) {
-  var bin = "";
-  for (var i = 0; i < hex.length; i++) {
-    var hexDigit = parseInt(hex[i], 16);
-    var binDigit = hexDigit.toString(2).padStart(4, '0');
-    bin += binDigit;
-  }
-  return bin;
+function FIND_ERR(data) {
+    const n = data.length;
+    let k = 0;
+    while (Math.pow(2, k) < n + k + 1) {
+        k++;
+    }
+
+    const errorCodes = [];
+
+    for (let i = 0; i < n; i++) {
+        const corruptedData = data.split('');
+        corruptedData[i] = corruptedData[i] === '0' ? '1' : '0';
+        const hammingCode = CAL_HAM_COD(corruptedData.join(''));
+
+        let errorPosition = 0;
+        for (let j = 0; j < k; j++) {
+            errorPosition += parseInt(hammingCode[Math.pow(2, j) - 1], 2);
+        }
+
+        if (errorPosition > 0) {
+            errorCodes.push(data + " -> " + hammingCode + " : " + (errorPosition).toString(2));
+        }
+    }
+
+    return errorCodes;
 }
 
-function GENERATE_ERR_COD(inputHex) {
-  const inputText = HEX2BIN_EXTENDED(inputHex);
-  const erroneousCodes = [];
+function main() {
+    const input = prompt("Enter a sequence of 16 hexadecimal digits: ");
+    const binaryInput = HEX2BIN_EXTENDED(input);
 
-  if (inputText.length !== 21) {
-    return erroneousCodes;
-  }
+    const errorCodes = FIND_ERR(binaryInput);
 
-  for (let i = 0; i < inputText.length - 1; i++) {
-    let code = inputText;
-    // Flip the bits between i and i+1
-    code = code.substring(0, i) + (code[i] === '0' ? '1' : '0') + (code[i + 1] === '0' ? '1' : '0') + code.substring(i + 2);
-    erroneousCodes.push((i + 1) + "->" + (i + 2) + " : " + code);
-  }
-
-  return erroneousCodes;
+    console.log("Error Codes:");
+    for (const errorCode of errorCodes) {
+        console.log(errorCode);
+    }
 }
 
-// Rest of your code remains unchanged
+main();
