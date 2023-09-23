@@ -5,13 +5,11 @@
  * @return {text} сформований кож Хеммінга
  * 
  */
-
 function FORM_HEMM_CODE(inputText)
 {
     var result = [];
     var k_bits = [];
     mess = '';
-
 
     if(typeof inputText != 'string')
     {

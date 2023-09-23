@@ -343,3 +343,96 @@ function CALCULATE_ENTROPY(probabilitiesArray) {
   return entropy;
 }
 
+function GET8_UNIQUE_LETTERS(inputString) {
+  inputString = String(inputString).toUpperCase();
+  
+  var uniqueLetters = "";
+  var encounteredLetters = {};
+
+  for (var i = 0; i < inputString.length; i++) {
+    var letter = inputString[i];
+    if (!encounteredLetters[letter] && /[А-ЯІЇЄҐ]/.test(letter)) {
+      uniqueLetters += letter;
+      encounteredLetters[letter] = true;
+    }
+
+    if (uniqueLetters.length === 8) {
+      break;
+    }
+  }
+  
+  return uniqueLetters;
+}
+
+// Глобальний масив для зберігання таблиці
+var table = [
+  ['А', '7', '8'],
+  ['Б', '5', '8'],
+  ['В', '3', '8'],
+  ['Г', '1', '8'],
+  ['Д', '2', '8'],
+  ['Е', '4', '8'],
+  ['Є', '7', '1'],
+  ['Ж', '5', '1'],
+  ['З', '3', '1'],
+  ['И', '1', '1'],
+  ['І', '2', '1'],
+  ['Ї', '4', '1'],
+  ['Й', '7', '3'],
+  ['К', '5', '3'],
+  ['Л', '3', '3'],
+  ['М', '1', '3'],
+  ['Н', '2', '3'],
+  ['О', '4', '3'],
+  ['П', '7', '5'],
+  ['Р', '5', '5'],
+  ['С', '3', '5'],
+  ['Т', '1', '5'],
+  ['У', '2', '5'],
+  ['Ф', '4', '5'],
+  ['Х', '7', '7'],
+  ['Ц', '5', '7'],
+  ['Ч', '3', '7'],
+  ['Ш', '1', '7'],
+  ['Щ', '2', '7'],
+  ['Ю', '4', '7'],
+  ['Я', '7', '9'],
+  ['Ь', '5', '9']
+];
+
+// Function to get the most significant digit
+function GET_1_DIGIT(variant, position) {
+  var letter = variant.charAt(position - 1);
+  for (var i = 0; i < table.length; i++) {
+    if (table[i][0] === letter) {
+      return Number(table[i][1]);
+    }
+  }
+  return "Letter not found";
+}
+
+// Function to get the least significant digit
+function GET_2_DIGIT(variant, position) {
+  var letter = variant.charAt(position - 1);
+  for (var i = 0; i < table.length; i++) {
+    if (table[i][0] === letter) {
+      return Number(table[i][2]);
+    }
+  }
+  return "Letter not found";
+}
+
+// Function to get the full number
+function GET_FULL_NUMBER(variant, position) {
+  return GET_1_DIGIT(variant, position) * 10 + GET_2_DIGIT(variant, position);
+}
+
+function HEX2BIN_ONLY_INT(hex) {
+  var bin = "";
+  for (var i = 0; i < hex.length; i++) {
+    var hexDigit = parseInt(hex[i], 16);
+    var binDigit = hexDigit.toString(2).padStart(4, '0');
+    bin += binDigit;
+  }
+  return bin;
+}
