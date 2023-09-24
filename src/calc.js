@@ -10,8 +10,15 @@ function GET_ENTROPY(arr) {
 
 // Calculate average length of codes based on probabilities
 function GET_AVERAGE_LENGTH(CodeArr, ChanceArr) {
-  if (Array.isArray(CodeArr) && Array.isArray(ChanceArr) && CodeArr.length === ChanceArr.length) {
-    return CodeArr.reduce((avgLength, code, i) => avgLength + code.length * ChanceArr[i], 0);
+  if (
+    Array.isArray(CodeArr) &&
+    Array.isArray(ChanceArr) &&
+    CodeArr.length === ChanceArr.length
+  ) {
+    return CodeArr.reduce(
+      (avgLength, code, i) => avgLength + code.length * ChanceArr[i],
+      0
+    );
   }
   return "NaN";
 }
@@ -25,14 +32,14 @@ module.exports = { GET_ENTROPY, GET_AVERAGE_LENGTH };
 const _getRangeOfPrimes = (number) => {
   const primes = [2, 3, 5, 7, 11, 13, 17, 19];
   const result = [];
-  
+
   for (const prime of primes) {
     while (number % prime === 0) {
       result.push(prime);
       number /= prime;
     }
   }
-  
+
   return result;
 };
 
@@ -45,10 +52,13 @@ const _getProbabilities = (valuesArray) => {
 // Find smallest number in array larger than a threshold
 const _findSmallestLargerNumber = (rangeValues, threshold) => {
   if (!Array.isArray(rangeValues)) {
-    throw new Error('rangeValues must be an array');
+    throw new Error("rangeValues must be an array");
   }
-  
+
   return rangeValues.reduce((minLargerValue, [value]) => {
-    return (value > threshold && (minLargerValue === null || value < minLargerValue)) ? value : minLargerValue;
+    return value > threshold &&
+      (minLargerValue === null || value < minLargerValue)
+      ? value
+      : minLargerValue;
   }, null);
 };
