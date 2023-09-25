@@ -23,13 +23,8 @@ function GET_AVERAGE_LENGTH(CodeArr, ChanceArr) {
   return "NaN";
 }
 
-// Export public functions
-module.exports = { GET_ENTROPY, GET_AVERAGE_LENGTH };
-
-// ------------------------------ PRIVATE ------------------------------
-
 // Get range of prime factors for a number
-const _getRangeOfPrimes = (number) => {
+function GET_RANGE_OF_PRIMES(number) {
   const primes = [2, 3, 5, 7, 11, 13, 17, 19];
   const result = [];
 
@@ -41,16 +36,16 @@ const _getRangeOfPrimes = (number) => {
   }
 
   return result;
-};
+}
 
 // Calculate probabilities based on array of values
-const _getProbabilities = (valuesArray) => {
+function GET_PROBABILITIES(valuesArray) {
   const totalSum = valuesArray.reduce((sum, [value]) => sum + value, 0);
   return valuesArray.map(([value]) => [+(value / totalSum).toFixed(2)]);
-};
+}
 
 // Find smallest number in array larger than a threshold
-const _findSmallestLargerNumber = (rangeValues, threshold) => {
+function FIND_SMALLEST_LARGER_NUMBER(rangeValues, threshold) {
   if (!Array.isArray(rangeValues)) {
     throw new Error("rangeValues must be an array");
   }
@@ -61,4 +56,15 @@ const _findSmallestLargerNumber = (rangeValues, threshold) => {
       ? value
       : minLargerValue;
   }, null);
-};
+}
+
+// Node.js export
+if (typeof module !== "undefined") {
+  module.exports = {
+    GET_ENTROPY,
+    GET_AVERAGE_LENGTH,
+    GET_RANGE_OF_PRIMES,
+    GET_PROBABILITIES,
+    FIND_SMALLEST_LARGER_NUMBER,
+  };
+}

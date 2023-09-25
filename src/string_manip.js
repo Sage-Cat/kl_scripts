@@ -62,14 +62,16 @@ function CREATE_ARRAY_OF_PAIRS(stringData) {
 }
 
 // Export public functions
-module.exports = {
-  GET8_UNIQUE_LETTERS,
-  GET_1_DIGIT,
-  GET_2_DIGIT,
-  GET_FULL_NUMBER,
-  CREATE_ARRAY_OF_PAIRS,
-  VARIANTS,
-};
+if (typeof module !== "undefined") {
+  module.exports = {
+    GET8_UNIQUE_LETTERS,
+    GET_1_DIGIT,
+    GET_2_DIGIT,
+    GET_FULL_NUMBER,
+    CREATE_ARRAY_OF_PAIRS,
+    VARIANTS,
+  };
+}
 
 // ------------------------------ PRIVATE ------------------------------
 

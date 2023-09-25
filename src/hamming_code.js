@@ -14,8 +14,7 @@ function GENERATE_HEMMING_CODE(inputText) {
 // Test Hemming code for errors
 function TEST_HEMMING_CODE(code) {
   if (typeof code !== "string") return "NaN";
-  if (code.length !== 21)
-    return "Incorrect code length (16 info bits + 5 control bits)";
+  if (code.length !== 21) return "Incorrect code length"; //  (16 info bits + 5 control bits)
 
   const arr = [0, ...Array.from(code).map(Number)];
   const k_bits = _calculateErrorBits(arr);
@@ -23,7 +22,9 @@ function TEST_HEMMING_CODE(code) {
 }
 
 // Export public functions
-module.exports = { GENERATE_HEMMING_CODE, TEST_HEMMING_CODE };
+if (typeof module !== "undefined") {
+  module.exports = { GENERATE_HEMMING_CODE, TEST_HEMMING_CODE };
+}
 
 // ------------------------------ PRIVATE ------------------------------
 

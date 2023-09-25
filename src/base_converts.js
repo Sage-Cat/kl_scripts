@@ -1,43 +1,55 @@
 // ------------------------------------ PUBLIC ------------------------------------
 
-const DEC2HEX_EXTENDED = (decString) => _decToBaseExtended(decString, 16);
-const DEC2BIN_EXTENDED = (decString) => _decToBaseExtended(decString, 2);
-const DEC2OCT_EXTENDED = (decString) => _decToBaseExtended(decString, 8);
+const DEC2HEX_EXTENDED = (decString) =>
+  _decToBaseExtended(decString, 16).replace(/^0+/, "");
+const DEC2BIN_EXTENDED = (decString) =>
+  _decToBaseExtended(decString, 2).replace(/^0+/, "");
+const DEC2OCT_EXTENDED = (decString) =>
+  _decToBaseExtended(decString, 8).replace(/^0+/, "");
 
-const HEX2DEC_EXTENDED = (hexString) => _hexToBaseExtended(hexString, 10);
-const HEX2BIN_EXTENDED = (hexString) => _hexToBaseExtended(hexString, 2);
-const HEX2OCT_EXTENDED = (hexString) => _hexToBaseExtended(hexString, 8);
+const HEX2DEC_EXTENDED = (hexString) =>
+  _hexToBaseExtended(hexString, 10).replace(/^0+/, "");
+const HEX2BIN_EXTENDED = (hexString) =>
+  _hexToBaseExtended(hexString, 2).replace(/^0+/, "");
+const HEX2OCT_EXTENDED = (hexString) =>
+  _hexToBaseExtended(hexString, 8).replace(/^0+/, "");
 
 const DEC2MODULAR = (inputNumber, bases) => {
   const cellValue = parseInt(inputNumber, 10);
   const results = bases.map((base) => cellValue % base);
-  return `(${results.join(", ")})`;
+  return `(${results.join(", ").replace(/^0+/, "")})`;
 };
 
-// Additional conversion functions
-const HEX2BIN_ONLY_INT = (hex) => parseInt(hex, 16).toString(2);
-const HEX2OCT_ONLY_INT = (hex) => parseInt(hex, 16).toString(8);
-const HEX2DEC_ONLY_INT = (hex) => parseInt(hex, 16).toString(10);
-const DEC2BIN_ONLY_INT = (dec) => parseInt(dec, 10).toString(2);
-const DEC2HEX_ONLY_INT = (dec) => parseInt(dec, 10).toString(16).toUpperCase();
-const DEC2OCT_ONLY_INT = (dec) => parseInt(dec, 10).toString(8);
+const HEX2BIN_ONLY_INT = (hex) =>
+  parseInt(hex, 16).toString(2).replace(/^0+/, "");
+const HEX2OCT_ONLY_INT = (hex) =>
+  parseInt(hex, 16).toString(8).replace(/^0+/, "");
+const HEX2DEC_ONLY_INT = (hex) =>
+  parseInt(hex, 16).toString(10).replace(/^0+/, "");
+const DEC2BIN_ONLY_INT = (dec) =>
+  parseInt(dec, 10).toString(2).replace(/^0+/, "");
+const DEC2HEX_ONLY_INT = (dec) =>
+  parseInt(dec, 10).toString(16).toUpperCase().replace(/^0+/, "");
+const DEC2OCT_ONLY_INT = (dec) =>
+  parseInt(dec, 10).toString(8).replace(/^0+/, "");
 
-module.exports = {
-  DEC2HEX_EXTENDED,
-  DEC2BIN_EXTENDED,
-  DEC2OCT_EXTENDED,
-  HEX2DEC_EXTENDED,
-  HEX2BIN_EXTENDED,
-  HEX2OCT_EXTENDED,
-  DEC2MODULAR,
-  HEX2BIN_ONLY_INT,
-  HEX2OCT_ONLY_INT,
-  HEX2DEC_ONLY_INT,
-  DEC2BIN_ONLY_INT,
-  DEC2HEX_ONLY_INT,
-  DEC2OCT_ONLY_INT,
-};
-
+if (typeof module !== "undefined") {
+  module.exports = {
+    DEC2HEX_EXTENDED,
+    DEC2BIN_EXTENDED,
+    DEC2OCT_EXTENDED,
+    HEX2DEC_EXTENDED,
+    HEX2BIN_EXTENDED,
+    HEX2OCT_EXTENDED,
+    DEC2MODULAR,
+    HEX2BIN_ONLY_INT,
+    HEX2OCT_ONLY_INT,
+    HEX2DEC_ONLY_INT,
+    DEC2BIN_ONLY_INT,
+    DEC2HEX_ONLY_INT,
+    DEC2OCT_ONLY_INT,
+  };
+}
 // ------------------------------------ PRIVATE ------------------------------------
 
 // Constants
