@@ -17,7 +17,7 @@ const HEX2OCT_EXTENDED = (hexString) =>
 const DEC2MODULAR = (inputNumber, bases) => {
   const cellValue = parseInt(inputNumber, 10);
   const results = bases.map((base) => cellValue % base);
-  return `(${results.join(", ").replace(/^0+/, "")})`;
+  return `(${results.join(", ")})`;
 };
 
 const HEX2BIN_ONLY_INT = (hex) =>
@@ -50,10 +50,12 @@ if (typeof module !== "undefined") {
     DEC2OCT_ONLY_INT,
   };
 }
+
 // ------------------------------------ PRIVATE ------------------------------------
 
 // Constants
-const MAX_FRACTION_DIGITS = 5;
+const MAX_FRACTION_DIGITS_DEC_OCT_HEX = 3; // 3 digits after ","
+const MAX_FRACTION_DIGITS_BIN = 5; // 5 bits after ","
 
 // Private function to validate input
 const _validateInput = (input, delimiter) =>
@@ -64,7 +66,7 @@ const _convertFractional = (fractional, base, maxDigits) => {
   let result = "";
   for (let i = 0; i < maxDigits; i++) {
     fractional *= base;
-    result += Math.floor(fractional).toString(base);
+    result += Math.floor(fractional).toString(base).toUpperCase();
     fractional -= Math.floor(fractional);
   }
   return result;
@@ -72,36 +74,34 @@ const _convertFractional = (fractional, base, maxDigits) => {
 
 // Private function for decimal to base conversion logic
 const _decToBaseExtended = (decString, base) => {
+  const maxDigits =
+    base === 2 ? MAX_FRACTION_DIGITS_BIN : MAX_FRACTION_DIGITS_DEC_OCT_HEX;
+
   if (!_validateInput(decString, ",")) {
     return 'Invalid input format. Please use the format "X,Y" where X and Y are decimal numbers.';
   }
 
   const [integerPart, fractionalPart] = decString.split(",").map(parseFloat);
-  const result = Math.floor(integerPart).toString(base);
-  const fractional = _convertFractional(
-    `0.${fractionalPart}`,
-    base,
-    MAX_FRACTION_DIGITS
-  );
+  const result = Math.floor(integerPart).toString(base).toUpperCase();
+  const fractional = _convertFractional(`0.${fractionalPart}`, base, maxDigits);
 
-  return `${result}${fractional}`;
+  return `${result},${fractional}`;
 };
 
 // Private function for hex to base conversion logic
 const _hexToBaseExtended = (hexString, base) => {
+  const maxDigits =
+    base === 2 ? MAX_FRACTION_DIGITS_BIN : MAX_FRACTION_DIGITS_DEC_OCT_HEX;
+
   if (!_validateInput(hexString, ",")) {
     return 'Invalid input format. Please use the format "X,Y" where X and Y are hexadecimal numbers.';
   }
 
   const [integerPart, fractionalPart] = hexString.split(",");
-  const integer = parseInt(integerPart, 16).toString(base);
+  const integer = parseInt(integerPart, 16).toString(base).toUpperCase();
   const fractional =
     parseInt(fractionalPart, 16) / Math.pow(16, fractionalPart.length);
-  const fractionalBase = _convertFractional(
-    fractional,
-    base,
-    MAX_FRACTION_DIGITS
-  );
+  const fractionalBase = _convertFractional(fractional, base, maxDigits);
 
   return `${integer},${fractionalBase}`;
 };
