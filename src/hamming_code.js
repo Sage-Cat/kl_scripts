@@ -1,14 +1,23 @@
 // ------------------------------ PUBLIC ------------------------------
 
-// Generate Hemming code from 16-bit text
+// Function to get k-bits array
+function GET_KBITS(inputText) {
+  if (typeof inputText !== "string") return "Not a text!";
+  if (inputText.length !== 16)
+    return "Message must be 16 characters without spaces";
+
+  const inputBits = Array.from(inputText).map(Number);
+  return _calculateKBits(inputBits);
+}
+
 function GENERATE_HEMMING_CODE(inputText) {
   if (typeof inputText !== "string") return "Not a text!";
   if (inputText.length !== 16)
     return "Message must be 16 characters without spaces";
 
-  const result = Array.from(inputText);
-  const k_bits = _calculateKBits(inputText);
-  return _assembleMessage(result, k_bits);
+  const inputBits = Array.from(inputText).map(Number);
+  const k_bits = _calculateKBits(inputBits);
+  return _assembleMessage(inputBits, k_bits);
 }
 
 // Test Hemming code for errors
@@ -28,33 +37,34 @@ if (typeof module !== "undefined") {
 
 // ------------------------------ PRIVATE ------------------------------
 
-// Calculate k_bits for Hemming code
-function _calculateKBits(inputText) {
+function _calculateKBits(inputBits) {
   const k_bits = [];
-  k_bits[0] = _calculateKBit(inputText, [0, 1, 3, 4, 6, 8, 10, 11, 13, 15]);
-  k_bits[1] = _calculateKBit(inputText, [0, 2, 3, 5, 6, 9, 10, 12, 13]);
-  k_bits[2] = _calculateKBit(inputText, [1, 2, 3, 7, 8, 9, 10, 14, 15]);
-  k_bits[3] = _calculateKBit(inputText, [4, 5, 6, 7, 8, 9, 10]);
-  k_bits[4] = _calculateKBit(inputText, [11, 12, 13, 14, 15]);
+  k_bits[0] = _calculateKBit(inputBits, [0, 1, 3, 4, 6, 8, 10, 11, 13, 15]);
+  k_bits[1] = _calculateKBit(inputBits, [0, 2, 3, 5, 6, 9, 10, 12, 13]);
+  k_bits[2] = _calculateKBit(inputBits, [1, 2, 3, 7, 8, 9, 10, 14, 15]);
+  k_bits[3] = _calculateKBit(inputBits, [4, 5, 6, 7, 8, 9, 10]);
+  k_bits[4] = _calculateKBit(inputBits, [11, 12, 13, 14, 15]);
   return k_bits;
 }
 
-// Calculate a single k_bit
-function _calculateKBit(inputText, indices) {
-  return indices.reduce((acc, i) => acc ^ inputText[i], 0);
+function _calculateKBit(inputBits, indices) {
+  return indices.reduce((acc, i) => acc ^ inputBits[i], 0);
 }
 
-// Assemble the final message with k_bits and result
-function _assembleMessage(result, k_bits) {
-  let mess = k_bits[0] + k_bits[1];
-  let n = 2;
-  for (let i = 0; i < result.length; i++) {
-    if ([1, 4, 11].includes(i)) {
-      mess += k_bits[n++];
+function _assembleMessage(inputBits, k_bits) {
+  let message = "";
+  let kIndex = 0;
+  let bIndex = 0;
+
+  for (let i = 1; i <= 21; i++) {
+    if (Math.log2(i) % 1 === 0) {
+      message += k_bits[kIndex++];
+    } else {
+      message += inputBits[bIndex++];
     }
-    mess += result[i];
   }
-  return mess;
+
+  return message;
 }
 
 // Calculate error bits for testing Hemming code

@@ -1,18 +1,12 @@
 // ------------------------------------ PUBLIC ------------------------------------
 
-const DEC2HEX_EXTENDED = (decString) =>
-  _decToBaseExtended(decString, 16).replace(/^0+/, "");
-const DEC2BIN_EXTENDED = (decString) =>
-  _decToBaseExtended(decString, 2).replace(/^0+/, "");
-const DEC2OCT_EXTENDED = (decString) =>
-  _decToBaseExtended(decString, 8).replace(/^0+/, "");
+const DEC2HEX_EXTENDED = (decString) => _decToBaseExtended(decString, 16);
+const DEC2BIN_EXTENDED = (decString) => _decToBaseExtended(decString, 2);
+const DEC2OCT_EXTENDED = (decString) => _decToBaseExtended(decString, 8);
 
-const HEX2DEC_EXTENDED = (hexString) =>
-  _hexToBaseExtended(hexString, 10).replace(/^0+/, "");
-const HEX2BIN_EXTENDED = (hexString) =>
-  _hexToBaseExtended(hexString, 2).replace(/^0+/, "");
-const HEX2OCT_EXTENDED = (hexString) =>
-  _hexToBaseExtended(hexString, 8).replace(/^0+/, "");
+const HEX2DEC_EXTENDED = (hexString) => _hexToBaseExtended(hexString, 10);
+const HEX2BIN_EXTENDED = (hexString) => _hexToBaseExtended(hexString, 2);
+const HEX2OCT_EXTENDED = (hexString) => _hexToBaseExtended(hexString, 8);
 
 const DEC2MODULAR = (inputNumber, bases) => {
   const cellValue = parseInt(inputNumber, 10);
@@ -20,18 +14,15 @@ const DEC2MODULAR = (inputNumber, bases) => {
   return `(${results.join(", ")})`;
 };
 
-const HEX2BIN_ONLY_INT = (hex) =>
-  parseInt(hex, 16).toString(2).replace(/^0+/, "");
-const HEX2OCT_ONLY_INT = (hex) =>
-  parseInt(hex, 16).toString(8).replace(/^0+/, "");
-const HEX2DEC_ONLY_INT = (hex) =>
-  parseInt(hex, 16).toString(10).replace(/^0+/, "");
-const DEC2BIN_ONLY_INT = (dec) =>
-  parseInt(dec, 10).toString(2).replace(/^0+/, "");
-const DEC2HEX_ONLY_INT = (dec) =>
-  parseInt(dec, 10).toString(16).toUpperCase().replace(/^0+/, "");
-const DEC2OCT_ONLY_INT = (dec) =>
-  parseInt(dec, 10).toString(8).replace(/^0+/, "");
+const HEX2BIN_TETRAD = (hex) => {
+  let bin = "";
+  for (let i = 0; i < hex.length; i++) {
+    let hexDigit = parseInt(hex[i], 16);
+    let binDigit = hexDigit.toString(2).padStart(4, "0");
+    bin += binDigit;
+  }
+  return bin;
+};
 
 if (typeof module !== "undefined") {
   module.exports = {
@@ -42,20 +33,15 @@ if (typeof module !== "undefined") {
     HEX2BIN_EXTENDED,
     HEX2OCT_EXTENDED,
     DEC2MODULAR,
-    HEX2BIN_ONLY_INT,
-    HEX2OCT_ONLY_INT,
-    HEX2DEC_ONLY_INT,
-    DEC2BIN_ONLY_INT,
-    DEC2HEX_ONLY_INT,
-    DEC2OCT_ONLY_INT,
+    HEX2BIN_TETRAD,
   };
 }
 
 // ------------------------------------ PRIVATE ------------------------------------
 
 // Constants
-const MAX_FRACTION_DIGITS_DEC_OCT_HEX = 3; // 3 digits after ","
-const MAX_FRACTION_DIGITS_BIN = 5; // 5 bits after ","
+const MAX_FRACTION_DIGITS_DEC_OCT_HEX = 3;
+const MAX_FRACTION_DIGITS_BIN = 5;
 
 // Private function to validate input
 const _validateInput = (input, delimiter) =>
