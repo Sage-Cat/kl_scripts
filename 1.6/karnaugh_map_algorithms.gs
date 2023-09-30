@@ -1,8 +1,9 @@
 // ------------------------------ PUBLIC ------------------------------
-const {HEX2BIN_EXTENDED} = require("./base_converts");
-// Функція FIND_ERR_CODE використовує метод Карт Карно для знаходження помилкових кодів на вхідному шістнадцятковому рядку.
+const { HEX2BIN_EXTENDED } = require("./base_converts");
+
+// Функція GET_ALL_ERROR_SEQUENCES використовує метод Карт Карно для знаходження помилкових кодів на вхідному шістнадцятковому рядку.
 // Вона розбиває рядок на бінарний рядок, будує карту Карно для кожного розряду і знаходить помилкові коди.
-function FIND_ERR_CODE(hexInput) {
+function GET_ALL_ERROR_SEQUENCES(hexInput) {
     const errorCodes = [];
 
     // Перетворення вхідного шістнадцяткового рядка в бінарний рядок
@@ -51,14 +52,7 @@ function FIND_ERR_CODE(hexInput) {
     return errorCodes;
 }
 
-// Зчитуємо вхідний шістнадцятковий рядок від користувача
-const hexInput = prompt("Введіть 16-ковий рядок: ");
-
-// Знаходимо помилкові коди за допомогою Карт Карно для кожного розряду
-const errorCodes = FIND_ERR_CODE(hexInput);
-
-// Виводимо результат в консоль
-console.log("Помилкові коди:");
-errorCodes.forEach((code) => {
-    console.log(code);
-});
+// Експорт функції GET_ALL_ERROR_SEQUENCES
+module.exports = {
+    GET_ALL_ERROR_SEQUENCES
+};
