@@ -59,6 +59,7 @@ const errorCodes = GET_ALL_ERROR_SEQUENCES(hexInput);
 console.log("Помилкові коди:");
 errorCodes.forEach((code) => {
     console.log(code);
+});
 
 // Експорт функції GET_ALL_ERROR_SEQUENCES
 module.exports = {
