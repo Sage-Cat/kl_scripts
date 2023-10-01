@@ -53,13 +53,10 @@ function GET_ALL_ERROR_SEQUENCES(hexInput) {
 }
 
 
-// Виводимо результат в консоль
-console.log("Помилкові коди:");
-errorCodes.forEach((code) => {
-    console.log(code);
-});
 
 // Експорт функції GET_ALL_ERROR_SEQUENCES
-module.exports = {
-    GET_ALL_ERROR_SEQUENCES
-};
+if (typeof module !== "undefined") {
+  module.exports = {
+    GET_ALL_ERROR_SEQUENCES,
+  };
+}
