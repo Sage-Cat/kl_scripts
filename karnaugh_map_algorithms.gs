@@ -1,62 +1,76 @@
-// ------------------------------ PUBLIC ------------------------------
-const { HEX2BIN_EXTENDED } = require("./base_converts");
+// ------------------------------------ PRIVATE ------------------------------------
+// Імпортуємо необхідний модуль для HEX2BIN_TETRAD
+const { HEX2BIN_TETRAD } = require("./base_converts");
 
-// Функція GET_ALL_ERROR_SEQUENCES використовує метод Карт Карно для знаходження помилкових кодів на вхідному шістнадцятковому рядку.
-// Вона розбиває рядок на бінарний рядок, будує карту Карно для кожного розряду і знаходить помилкові коди.
-function GET_ALL_ERROR_SEQUENCES(hexInput) {
-    const errorCodes = [];
-
-    // Перетворення вхідного шістнадцяткового рядка в бінарний рядок
-    const binaryInput = HEX2BIN_EXTENDED(hexInput);
-
-    // Побудова карт Карно для кожного розряду
-    const karnaughMaps = Array.from({ length: 16 }, () =>
-        Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => 0))
-    );
-
-    // Заповнення карт Карно значеннями з бінарного рядка
-    for (let i = 0; i < 16; i++) {
-        for (let j = 0; j < 4; j++) {
-            for (let k = 0; k < 4; k++) {
-                const row = j;
-                const col = k;
-                karnaughMaps[i][row][col] = parseInt(binaryInput[i]);
-            }
-        }
+// Функція для обчислення відстані Хеммінга між двома рядками a і b
+function _hammingDistance(a, b) {
+  let distance = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      distance++;
     }
-
-    // Знаходження помилкових кодів на картах Карно для кожного розряду
-    for (let i = 0; i < 16; i++) {
-        for (let j = 0; j < 4; j++) {
-            for (let k = 0; k < 4; k++) {
-                if (karnaughMaps[i][j][k] === 1) {
-                    let errorCount = 0;
-                    let errorCodesStr = "";
-
-                    // Знаходження розрядів, які відрізняються від поточного розряду
-                    for (let l = 0; l < 4; l++) {
-                        if (l !== j) {
-                            errorCount++;
-                            errorCodesStr += l.toString();
-                        }
-                    }
-
-                    // Додавання знайденого помилкового коду до списку
-                    errorCodes.push(`${i}->${j} : ${errorCodesStr}`);
-                }
-            }
-        }
-    }
-
-    // Повертає список помилкових кодів
-    return errorCodes;
+  }
+  return distance;
 }
 
+// Функція для обчислення можливих кодів помилок між двома рядками start і end
+function _calculateErrorCodes(start, end) {
+  let differingBits = [];
+  for (let i = 0; i < start.length; i++) {
+    if (start[i] !== end[i]) {
+      differingBits.push(i);
+    }
+  }
 
+  const n = differingBits.length;
+  let errorCodes = new Set();
 
-// Експорт функції GET_ALL_ERROR_SEQUENCES
+  if (n === 4) {
+    // Якщо відстань Хеммінга дорівнює 4, генеруємо всі можливі коди помилок
+    for (let i = 0; i < 16; i++) {
+      const errorCode = i.toString(2).padStart(4, '0');
+      if (errorCode !== start.join('') && errorCode !== end.join('')) {
+        errorCodes.add(errorCode);
+      }
+    }
+  } else {
+    // Якщо відстань Хеммінга відмінна від 4, генеруємо коди помилок для окремих бітів
+    for (const index of differingBits) {
+      let flippedStart = [...start];
+      let flippedEnd = [...end];
+      flippedStart[index] = end[index];
+      flippedEnd[index] = start[index];
+      errorCodes.add(flippedStart.join(''));
+      errorCodes.add(flippedEnd.join(''));
+    }
+  }
+  
+  return Array.from(errorCodes);
+}
+
+// ------------------------------ PUBLIC ------------------------------
+// Публічна функція для отримання кодів помилок між послідовними HEX значеннями
+function GET_KARNAUGH_ERROR_CODES(hexSequence) {
+  const allErrorCodes = [];
+  for (let i = 0; i < hexSequence.length - 1; i++) {
+    const startHex = hexSequence[i];
+    const endHex = hexSequence[i + 1];
+    const startBinary = HEX2BIN_TETRAD(startHex);
+    const endBinary = HEX2BIN_TETRAD(endHex);
+    const errorCodes = _calculateErrorCodes(startBinary.split(''), endBinary.split(''));
+    // Формуємо рядок з результатами та додаємо його до масиву
+    allErrorCodes.push(`${startHex}(${startBinary})->${endHex}(${endBinary}): ${errorCodes.join(', ')}`);
+  }
+  return allErrorCodes;
+}
+
+// Виклик функції та вивід результатів на консоль
+const result = GET_KARNAUGH_ERROR_CODES('1F3A278');
+console.log(result);
+
+// Експорт функції GET_KARNAUGH_ERROR_CODES для використання її в інших модулях
 if (typeof module !== "undefined") {
   module.exports = {
-    GET_ALL_ERROR_SEQUENCES,
+    GET_KARNAUGH_ERROR_CODES,
   };
 }
