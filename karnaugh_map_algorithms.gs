@@ -52,8 +52,6 @@ function GET_ALL_ERROR_SEQUENCES(hexInput) {
     return errorCodes;
 }
 
-// Знаходимо помилкові коди за допомогою Карт Карно для кожного розряду
-const errorCodes = GET_ALL_ERROR_SEQUENCES(hexInput);
 
 // Виводимо результат в консоль
 console.log("Помилкові коди:");
