@@ -1,3 +1,34 @@
+// ------------------------------ PUBLIC ------------------------------
+
+// Імпортуємо необхідний модуль для HEX2BIN_TETRAD
+const { HEX2BIN_TETRAD } = require("./base_converts");
+
+// Публічна функція для отримання кодів помилок між послідовними HEX значеннями
+function GET_KARNAUGH_ERROR_CODES(hexSequence) {
+  const allErrorCodes = [];
+  for (let i = 0; i < hexSequence.length - 1; i++) {
+    const startHex = hexSequence[i];
+    const endHex = hexSequence[i + 1];
+    const startBinary = HEX2BIN_TETRAD(startHex);
+    const endBinary = HEX2BIN_TETRAD(endHex);
+    const errorCodes = _calculateErrorCodes(startBinary.split(''), endBinary.split(''));
+    // Формуємо рядок з результатами та додаємо його до масиву
+    allErrorCodes.push(`${startHex}(${startBinary})->${endHex}(${endBinary}): ${errorCodes.join(', ')}`);
+  }
+  return allErrorCodes;
+}
+
+// Виклик функції та вивід результатів на консоль
+const result = GET_KARNAUGH_ERROR_CODES('1F3A278');
+console.log(result);
+
+// Експорт функції GET_KARNAUGH_ERROR_CODES для використання її в інших модулях
+if (typeof module !== "undefined") {
+  module.exports = {
+    GET_KARNAUGH_ERROR_CODES,
+  };
+}
+
 // ------------------------------------ PRIVATE ------------------------------------
 
 // Функція для обчислення відстані Хеммінга між двома рядками a і b
@@ -46,33 +77,3 @@ function _calculateErrorCodes(start, end) {
   return Array.from(errorCodes);
 }
 
-// ------------------------------ PUBLIC ------------------------------
-
-// Імпортуємо необхідний модуль для HEX2BIN_TETRAD
-const { HEX2BIN_TETRAD } = require("./base_converts");
-
-// Публічна функція для отримання кодів помилок між послідовними HEX значеннями
-function GET_KARNAUGH_ERROR_CODES(hexSequence) {
-  const allErrorCodes = [];
-  for (let i = 0; i < hexSequence.length - 1; i++) {
-    const startHex = hexSequence[i];
-    const endHex = hexSequence[i + 1];
-    const startBinary = HEX2BIN_TETRAD(startHex);
-    const endBinary = HEX2BIN_TETRAD(endHex);
-    const errorCodes = _calculateErrorCodes(startBinary.split(''), endBinary.split(''));
-    // Формуємо рядок з результатами та додаємо його до масиву
-    allErrorCodes.push(`${startHex}(${startBinary})->${endHex}(${endBinary}): ${errorCodes.join(', ')}`);
-  }
-  return allErrorCodes;
-}
-
-// Виклик функції та вивід результатів на консоль
-const result = GET_KARNAUGH_ERROR_CODES('1F3A278');
-console.log(result);
-
-// Експорт функції GET_KARNAUGH_ERROR_CODES для використання її в інших модулях
-if (typeof module !== "undefined") {
-  module.exports = {
-    GET_KARNAUGH_ERROR_CODES,
-  };
-}
