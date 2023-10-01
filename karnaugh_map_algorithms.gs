@@ -1,6 +1,4 @@
 // ------------------------------------ PRIVATE ------------------------------------
-// Імпортуємо необхідний модуль для HEX2BIN_TETRAD
-const { HEX2BIN_TETRAD } = require("./base_converts");
 
 // Функція для обчислення відстані Хеммінга між двома рядками a і b
 function _hammingDistance(a, b) {
@@ -49,6 +47,10 @@ function _calculateErrorCodes(start, end) {
 }
 
 // ------------------------------ PUBLIC ------------------------------
+
+// Імпортуємо необхідний модуль для HEX2BIN_TETRAD
+const { HEX2BIN_TETRAD } = require("./base_converts");
+
 // Публічна функція для отримання кодів помилок між послідовними HEX значеннями
 function GET_KARNAUGH_ERROR_CODES(hexSequence) {
   const allErrorCodes = [];
