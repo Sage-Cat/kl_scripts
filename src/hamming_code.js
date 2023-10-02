@@ -1,6 +1,29 @@
-// ------------------------------ PUBLIC ------------------------------
+// Імпортуємо необхідний модуль для HEX2BIN_TETRAD
+const { HEX2BIN_TETRAD } = require("./base_converts");
 
-// Function to get k-bits array
+// ------------------------------ PUBLIC ------------------------------
+// Публічна функція для отримання кодів помилок між послідовними HEX значеннями
+function GET_ERROR_CODES(hexSequence) {
+  const allErrorCodes = [];
+  for (let i = 0; i < hexSequence.length - 1; i++) {
+    const startHex = hexSequence[i];
+    const endHex = hexSequence[i + 1];
+    const startBinary = HEX2BIN_TETRAD(startHex);
+    const endBinary = HEX2BIN_TETRAD(endHex);
+    const errorCodes = _calculateErrorCodes(
+      startBinary.split(""),
+      endBinary.split("")
+    );
+    // Формуємо рядок з результатами та додаємо його до масиву
+    allErrorCodes.push(
+      `${startHex}(${startBinary})->${endHex}(${endBinary}): ${errorCodes.join(
+        ", "
+      )}`
+    );
+  }
+  return [allErrorCodes];
+}
+
 function GET_KBITS(inputText) {
   if (typeof inputText !== "string") return "Not a text!";
   if (inputText.length !== 16)
@@ -32,10 +55,50 @@ function TEST_HEMMING_CODE(code) {
 
 // Export public functions
 if (typeof module !== "undefined") {
-  module.exports = { GENERATE_HEMMING_CODE, TEST_HEMMING_CODE };
+  module.exports = {
+    GET_ERROR_CODES,
+    GET_KBITS,
+    GENERATE_HEMMING_CODE,
+    TEST_HEMMING_CODE,
+  };
 }
 
 // ------------------------------ PRIVATE ------------------------------
+
+// Функція для обчислення можливих кодів помилок між двома рядками start і end
+function _calculateErrorCodes(start, end) {
+  let differingBits = [];
+  for (let i = 0; i < start.length; i++) {
+    if (start[i] !== end[i]) {
+      differingBits.push(i);
+    }
+  }
+
+  const n = differingBits.length;
+  let errorCodes = new Set();
+
+  if (n === 4) {
+    // Якщо відстань Хеммінга дорівнює 4, генеруємо всі можливі коди помилок
+    for (let i = 0; i < 16; i++) {
+      const errorCode = i.toString(2).padStart(4, "0");
+      if (errorCode !== start.join("") && errorCode !== end.join("")) {
+        errorCodes.add(errorCode);
+      }
+    }
+  } else {
+    // Якщо відстань Хеммінга відмінна від 4, генеруємо коди помилок для окремих бітів
+    for (const index of differingBits) {
+      let flippedStart = [...start];
+      let flippedEnd = [...end];
+      flippedStart[index] = end[index];
+      flippedEnd[index] = start[index];
+      errorCodes.add(flippedStart.join(""));
+      errorCodes.add(flippedEnd.join(""));
+    }
+  }
+
+  return Array.from(errorCodes);
+}
 
 function _calculateKBits(inputBits) {
   const k_bits = [];
