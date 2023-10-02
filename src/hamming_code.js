@@ -78,15 +78,13 @@ function _calculateErrorCodes(start, end) {
   let errorCodes = new Set();
 
   if (n === 4) {
-    // Якщо відстань Хеммінга дорівнює 4, генеруємо всі можливі коди помилок
+    // If Hamming distance is 4, generate all possible error codes
     for (let i = 0; i < 16; i++) {
       const errorCode = i.toString(2).padStart(4, "0");
-      if (errorCode !== start.join("") && errorCode !== end.join("")) {
-        errorCodes.add(errorCode);
-      }
+      errorCodes.add(errorCode);
     }
   } else {
-    // Якщо відстань Хеммінга відмінна від 4, генеруємо коди помилок для окремих бітів
+    // If Hamming distance is not 4, generate error codes for individual bits
     for (const index of differingBits) {
       let flippedStart = [...start];
       let flippedEnd = [...end];
@@ -96,6 +94,10 @@ function _calculateErrorCodes(start, end) {
       errorCodes.add(flippedEnd.join(""));
     }
   }
+
+  // Remove start and end codes from the error codes set
+  errorCodes.delete(start.join(""));
+  errorCodes.delete(end.join(""));
 
   return Array.from(errorCodes);
 }
