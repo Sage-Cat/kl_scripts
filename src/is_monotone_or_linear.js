@@ -1,21 +1,4 @@
-/**
- *
- * @param {number} number число, що тре переавести
- * @param {number} length довжина(к-сть розрядів) числа-результату
- * @param {number} radix Система числення, в яку тре перевести
- * @return {string}str результат завдовжки length, в системі числення radix
- * @constructor
- */
-function DecTo(number, length, radix)
-{
-  if(typeof number == "number"){
-      let str = number.toString(radix);
-      while (str.length < length)
-        str = "0" + str;
-     return str;
-  }
-}
-
+const { HEX2BIN_TETRAD } = require("./base_converts");
 /**
  *перевіряє функцію булевої алгебри на монотонніст
  * @param {string} data текст у вигляді двох цифр “12”
@@ -25,7 +8,7 @@ function DecTo(number, length, radix)
 function IS_F_MONOTONE(data){
   if(typeof(data != "string"))
     data = "" + data;
-let str = DecTo(parseInt(data[0]), 4, 2) + DecTo(parseInt(data[1]), 4, 2);
+let str = HEX2BIN_TETRAD(data);
 let monotone = (
     (str[0] <= str[1])
     && (str[1] <= str[3])
@@ -54,7 +37,7 @@ function IS_F_LINEAR(data)
 {
   if(typeof(data != "string"))
     data = "" + data;
-    let str = DecTo(parseInt(data[0]), 4, 2) + DecTo(parseInt(data[1]), 4, 2);
+    let str = HEX2BIN_TETRAD(data);
     let linear = true;
     for(let i = 0; i <= 7; ++i)
         for(let j = 0; j <= 7; ++j)
