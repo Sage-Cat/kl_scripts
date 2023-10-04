@@ -1,4 +1,3 @@
-const { DEC2BIN_EXTENDED } = require("./base_converts");
 /**
  *
  * @param {number} number число, що тре переавести
@@ -9,10 +8,12 @@ const { DEC2BIN_EXTENDED } = require("./base_converts");
  */
 function DecTo(number, length, radix)
 {
-    let str = number.toString(radix);
-    while (str.length < length)
+  if(typeof number == "number"){
+      let str = number.toString(radix);
+      while (str.length < length)
         str = "0" + str;
-    return str;
+     return str;
+  }
 }
 
 /**
@@ -22,6 +23,8 @@ function DecTo(number, length, radix)
  * @return {boolean} mono
  */
 function IS_F_MONOTONE(data){
+  if(typeof(data != "string"))
+    data = "" + data;
 let str = DecTo(parseInt(data[0]), 4, 2) + DecTo(parseInt(data[1]), 4, 2);
 let monotone = (
     (str[0] <= str[1])
@@ -49,6 +52,8 @@ return monotone;
  */
 function IS_F_LINEAR(data)
 {
+  if(typeof(data != "string"))
+    data = "" + data;
     let str = DecTo(parseInt(data[0]), 4, 2) + DecTo(parseInt(data[1]), 4, 2);
     let linear = true;
     for(let i = 0; i <= 7; ++i)
