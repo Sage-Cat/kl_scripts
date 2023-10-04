@@ -1,3 +1,4 @@
+const { HEX2BIN_EXTENDED } = require("./base_converts");
 /**
  *
  * @param {number} number число, що тре переавести
@@ -8,7 +9,7 @@
  */
 function DecTo(number, length, radix)
 {
-    let str = number.toString(radix);
+    let str = HEX2BIN_EXTENDED(number);
     while (str.length < length)
         str = "0" + str;
     return str;
