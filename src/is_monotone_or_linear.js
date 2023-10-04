@@ -9,7 +9,7 @@ const { DEC2BIN_EXTENDED } = require("./base_converts");
  */
 function DecTo(number, length, radix)
 {
-    let str = HEX2BIN_EXTENDED(number);
+    let str = number.toString(radix);
     while (str.length < length)
         str = "0" + str;
     return str;
