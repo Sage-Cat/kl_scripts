@@ -1,4 +1,4 @@
-const { HEX2BIN_EXTENDED } = require("./base_converts");
+const { DEC2BIN_EXTENDED } = require("./base_converts");
 /**
  *
  * @param {number} number число, що тре переавести
