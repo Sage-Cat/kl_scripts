@@ -50,4 +50,3 @@ function CHECK_FAL_FOR_ALL(n1, n2) {
       .join("");
     return invertedStr === compareStr;
   }
-  CHECK_FAL_FOR_ALL(4,3)
