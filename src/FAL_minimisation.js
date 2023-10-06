@@ -8,5 +8,7 @@ const { HEX2BIN_TETRAD, DEC2BIN_TRIAD } = require("./base_converts");
  */
 function FAL_MIN_1(text)
 {
-    D
+    if(typeof )
 }
+
+console.log(FAL_MIN_1(1));

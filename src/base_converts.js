@@ -44,6 +44,7 @@ if (typeof module !== "undefined") {
     HEX2OCT_EXTENDED,
     DEC2MODULAR,
     HEX2BIN_TETRAD,
+    DEC2BIN_TRIAD
   };
 }
 
