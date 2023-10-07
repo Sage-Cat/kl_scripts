@@ -24,11 +24,11 @@ const HEX2BIN_TETRAD = (hex) => {
   return bin;
 };
 
-const DEC2BIN_TRIAD = (hex) => {
+const DEC2BIN_TRIAD = (dec) => {
   let bin = "";
-  for (let i = 0; i < hex.length; i++) {
-    let decDigit = parseInt(hex[i], 16);
-    let binDigit = hex.toString(2).padStart(3, "0");
+  for (let i = 0; i < dec.length; i++) {
+    let decDigit = parseInt(dec[i], 16);
+    let binDigit = dec.toString(2).padStart(3, "0");
     bin += binDigit;
   }
   return bin;
