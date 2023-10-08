@@ -1,6 +1,7 @@
+// ------------------------------------ PUBLIC ------------------------------------
 const { HEX2BIN_TETRAD } = require("./base_converts");
 
-function CHECK_FOR_FULLFUNC(n1, n2){
+function CHECK_FAL_FOR_ALL(n1, n2) {
     let constZero = false;
     let constOne = false;
   
@@ -21,24 +22,25 @@ function CHECK_FOR_FULLFUNC(n1, n2){
     const str_result = str_x + str_y;
   
  
-    let monotoneResult = IS_F_MONOTONE(str_result);
-    let linearResult = IS_F_LINEAR(str_result)
-    let selfDualityResult = IS_F_SELFDUAL(str_n1, str_n2);
+    let monotoneResult = _is_f_monotone(str_result);
+    let linearResult = _is_f_linear(str_result)
+    let selfDualityResult = _selfDuality(str_n1, str_n2);
   
     const result = `Function : const0 = ${constZero}, const1 = ${constOne}, Monotone: ${monotoneResult}, Linear: ${linearResult}, Selfduality : ${selfDualityResult}`;
     console.log(result);
   }
 
-  if (typeof module !== "undefined"){
+  if (typeof module !== "undefined") {
     module.exports = {
-      IS_F_MONOTONE,
-      IS_F_LINEAR,
-      IS_F_SELFDUAL,
-      CHECK_FOR_FULLFUNC
+      _is_f_monotone,
+      _is_f_linear,
+      _selfDuality,
+      CHECK_FAL_FOR_ALL
     };
   }
+  // ------------------------------------ PRIVATE ------------------------------------
 
-  function IS_F_SELFDUAL(inputStr, compareStr){
+  function _selfDuality(inputStr, compareStr) {
     const invertedStr = inputStr
       .split("")
       .map((char) => (char === "0" ? "1" : "0"))
@@ -46,7 +48,7 @@ function CHECK_FOR_FULLFUNC(n1, n2){
       .join("");
     return invertedStr === compareStr;
   }
-  function IS_F_MONOTONE(data){
+  function _is_f_monotone(data){
     if(typeof(data != "string"))
       data = "" + data;
   let str = HEX2BIN_TETRAD(data);
@@ -66,7 +68,8 @@ function CHECK_FOR_FULLFUNC(n1, n2){
   );
   return monotone;
 }
-function IS_F_LINEAR(data){
+function _is_f_linear(data)
+{
   if(typeof(data != "string"))
     data = "" + data;
     let str = HEX2BIN_TETRAD(data);
@@ -80,3 +83,4 @@ function IS_F_LINEAR(data){
             }
     return linear;
 }
+CHECK_FAL_FOR_ALL(3,2)
