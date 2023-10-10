@@ -1,178 +1,352 @@
 const { HEX2BIN_TETRAD, DEC2BIN_TRIAD } = require("./base_converts");
+//________________________Public_____________________
 
 /**
- *
- * @param {string}fun функція задана рядком цифри шфтнадцяткоіої системи
- * @param {number}radix мінімізація за 1/0
+ * Мінімізує за 1
+ * @param {string}str "FF"
+ * @return {string} "!a + !c"
  * @constructor
- * @return {string}text
  */
-function _fal_minimisation(fal, radix = 1)
-{
-    let res = [];
-    if(typeof fal != "string")
-        fal = "" + fal;
-    fal = HEX2BIN_TETRAD(fal);
-
-    //відбір "цікавих" наборів
-    let codes = [];
-    for(let i =0; i < fal.length; ++i)
-        if(fal[i] == radix)
-        codes.push(DEC2BIN_TRIAD(i.toString()));
-
-    codes = BetterSort(codes, radix);
-
-    let implicants = [];
-    let commonImplicants = [];
-    //власне, мінімізація
-    for(let i = 0; i < codes.length - 1; ++i)
+function MINIMIZATION41(str) {
+    let result = "";
+    let variables = "abc";
+    let commonImplicans = _minimization(str, 1);
+    for(let i = 0; i < commonImplicans.length; ++i)
     {
-        //console.log("i = " + i);
-        for (let j = 0; j < codes[i].length; ++j) {
-            //console.log("j = " + j)
-            for (let k = 0; k < codes[i + 1].length; ++k) {
-                //console.log("k = " + k)
-                let position = dif(codes[i][j], codes[i + 1][k]);
-                let code = "";
-                if (position != -1 && position != codes[i][j].length) {
-                    code = codes[i][j];
-                    implicants.push(replaceAt(code, position, "-"));
-                }
-            }
+        for(let j = 0; j < variables.length; ++j) {
+
+            if (commonImplicans[i][j] == '1')
+                result += variables[j];
+            if (commonImplicans[i][j] == '0')
+                result += '!' + variables[j];
         }
+        if(i != commonImplicans.length - 1)
+            result += " + ";
+    }
+    return result;
+}
+
+
+/**
+ * Мінімізує за 0
+ * @param {string}str "FF"
+ * @return {string} "c!b!a"
+ * @constructor
+ */
+function MINIMIZATION40(str)
+{
+    let result = "";
+    let variables = "abc";
+    let commonImplicans = _minimization(str, 0);
+    for(let i = 0; i < commonImplicans.length; ++i)
+    {
+        result += "(";
+        for(let j = 0; j < variables.length; ++j) {
+
+            if (commonImplicans[i][j] == '0')
+                result += variables[j];
+            if (commonImplicans[i][j] == '1')
+                result += '!' + variables[j];
+            result += "+";
+        }
+            result += ")";
     }
 
-    return GetCommonImplicants(BetterSort(implicants, radix),implicants);
+
+    for (let i = 0; i < result.length; ++i)
+        if (
+            result[i] == "(" && result[i + 1] == "+" ||
+            result[i] == "+" && result[i + 1] == "+"
+        ) {
+            result = RemoveSymbol(result, i + 1);
+            --i;
+        }
 
 
+    for (let i = 0; i < result.length; ++i)
+        if(
+            result[i] == "+" && result[i+1] == ")"
+        )
+        {
+            result = RemoveSymbol(result, i);
+            --i;
+        }
+
+    for (let i = 0; i < result.length; ++i)
+        if(
+            result[i] == "(" && result[i+2] == ")"
+        )
+        {
+            result = RemoveSymbol(result, i + 2);
+            result = RemoveSymbol(result, i );
+            i += -2;
+        }
+
+    for (let i = 0; i < result.length; ++i)
+        if(
+            result[i] == "(" && result[i+1] == "!" && result[i+3] == ")"
+        )
+        {
+            result = RemoveSymbol(result, i + 3);
+            result = RemoveSymbol(result, i );
+            i += -2;
+        }
+//*/
+    return result;
 
 }
 
-console.log(_fal_minimisation("81"));
-//console.log(Counter("01010",1));
+module.exports = {
+    MINIMIZATION41,
+    MINIMIZATION40
+};
+
+//_________________________PRIVATE_________________
 
 /**
- * рахує к-сть 1/0 в наборі
- * @param {string}code
- * @param {string}radix
- * @return {number} к-сть 1\0 у наборі
+ * мінімізує функцію задану str за radix
+ * @param {string}str FF
+ * @param {string}radix 1/0
+ * @return {any[]} Масив простих імплікант
  */
-function Counter(code, radix)
+function _minimization(str, radix)
 {
-    code = "" + code;
+    str = "" + str;
+    radix = '' + radix;
+
+    let interestCodes = GetInterestCode(str, radix);
+
+    let commonImplicants = [];
+    let implicants = SortPerCount(interestCodes);
+
+    //console.log(GetImplicants(implicants,commonImplicants));
+
+
+    do {
+        let values
+            = GetImplicants(implicants, commonImplicants);
+
+        implicants = values.implicants;
+        commonImplicants = values.commonImplicants;
+
+    } while (implicants.length != 0)
+//*/
+
+    //console.log(commonImplicants);
+    //console.log(implicants);
+    //console.log(HEX2BIN_TETRAD(str));
+
+    return commonImplicants;
+}
+
+/**
+ * Виділення "цікавих" кодів
+ * @param {string}str код у 16
+ * @param {string}radix 1/0
+ * @return {*[]}
+ */
+function GetInterestCode(str, radix)
+{
+    str = "" + str;
     radix = "" + radix;
 
+    //конвертація 16 до 2
+    str = HEX2BIN_TETRAD(str);
+
+    //власне пошук
+    let result = [];
+    for(let i =0; i < str.length; ++i)
+        if(str[i] == radix)
+            result.push(DEC2BIN_TRIAD(''+ i));
+
+    return result;
+}
+
+/**
+ * Повертає к-сть 1 у str
+ * @param {string}str
+ * @constructor
+ */
+function Counter(str)
+{
     let counter = 0;
-    for(let i =0; i < code.length; ++i)
-        if(code[i] == radix)
+
+    for(let i = 0; i < str.length; ++i)
+        if(str[i] == "1")
             ++counter;
+
     return counter;
 }
 
 /**
- *  якщо відмінність одна, то повертає позицію відмінності,
- *  якщо більше, то -1,
- *  якщо нема, то довжину рядка
- * @param {string}code1
- * @param {string}code2
+ * прибирє порожні підмасиви
+ * @param {any[][]}array
+ * @return {any[][]} повертає ТОЙ ЖЕ масив без порожніх підмасивів
+ * @constructor
+ */
+function RemoveSpaces(array)
+{
+    for(let i = 0; i < array.length; ++i)
+        if(array[i].length == 0) {
+            array.splice(i, 1);
+            --i;
+        }
+
+    return array;
+}
+
+/**
+ * Сортує масив за к-стю 1 в коді
+ * @param {string[]}unsortedArrayOfCodes
+ * @return {any[][]}
+ */
+function SortPerCount(unsortedArrayOfCodes)
+{
+    let result = [];
+    if(unsortedArrayOfCodes.length > 0)
+    for(let i = 0; i <= unsortedArrayOfCodes[0].length; ++i) {
+        result[i] = [];
+        for(let j = 0; j < unsortedArrayOfCodes.length; ++j)
+            if(Counter(unsortedArrayOfCodes[j]) == i)
+                result[i].push(unsortedArrayOfCodes[j]);
+    }
+
+    //RemoveSpaces(result);
+
+    return RemoveSpaces(result);
+}
+
+/**
+ * Порівнює 2 рядки, якщо є 1 відмінність,
+ * то повертає її позицію. Якщо їх нема,
+ * або > 1, то повертає -1
+ * @param {string}str1
+ * @param {string}str2
  * @return {number}
  */
-function dif(code1, code2)
+function Compare(str1, str2)
 {
-    //console.log(code1 + " " + code2)
     let counter = 0;
-    let position = 0;
-    for(let i = 0; i < code1.length; ++i)
-    if(code1[i] != code2[i])
-    {
-        ++counter;
-        position = i;
-        //console.log(code1[i] + " " + code2[i])
-    }
+    let position = -1;
+
+    for(let i = 0; i < str1.length; ++i)
+        if(str1[i] != str2[i])
+        {
+            counter++;
+            position = i;
+        }
 
     if(counter == 1)
         return position;
-    if(counter == 0)
-        return code1.length
-    return -1;
+    if(counter != 1)
+        return -1;
 }
 
 /**
- *
- * @param {string}str
- * @param {number}pos
- * @param {string}sym
+ * Заміняє position-ий символ рядка на заданий символ
+ * @param {string}str рядок
+ * @param {number}position позиція
+ * @param {string}symbol символ
  * @return {string}
+ * @constructor
  */
-function replaceAt(str, pos, sym)
+function ReplaceAt(str, position, symbol)
 {
-    let res = "";
-    let i = 0;
+    str = "" + str;
+    symbol = "" + symbol;
 
-    while(i < str.length)
-    {
-        if(pos != i)
-            res += str[i];
+    let result = "";
+    for(let i = 0; i < str.length; ++i)
+        if(i == position)
+          result += symbol;
         else
-            res += sym;
-        ++i;
-    }
-    return res;
+            result += str[i];
+    return result;
 }
 
 /**
- *
- * @param {any[]}codes
- * @param {string}radix
+ * Прибирає елементи, що повторюються
+ * @param {any[]}array
  * @return {*[]}
  * @constructor
  */
-function BetterSort(codes, radix)
+function RemoveTheSame(array)
 {
-
-    console.log(codes);
-
-    let temp = [];
-    let tmp = [];
-
-    for(let i = 0; i <= codes[0].length; ++i) {
-        temp[i] = [];
-        let count = 0;
-        for (let j = 0; j < codes.length; ++j)
-            if (Counter(codes[j], radix) == i) {
-                temp[i][count++] = codes[j];
-            }
-    }
-
-    //усунення порожніх підмасивів
-    for(let i = 0; i < temp.length; ++i) {
-        //console.log(i + " " + temp[i]);
-        if (temp[i].length != 0)
-            tmp.push(temp[i]);
-    }
-
-    return tmp;
+    let result = [];
+    for (let i = 0; i < array.length; ++i)
+        if(!result.includes(array[i]))
+            result.push(array[i]);
+    return result;
 }
 
 /**
- *
- * @param {any[]}codes
- * @param {string[]}implicants
- * @return {string[]}
+ * Знаходить прості та звичайні імпліканти
+ * @param {any[]}codes масив кодів (імплікант)
+ * @param commonImplicants прості імпліканти
+ * @return {{implicants: *[], commonImplicants: *[]}} об♥єкт {звичайні імпліканти, проті імпліканти}
  * @constructor
  */
-    function GetCommonImplicants(codes, implicants)
+function GetImplicants(codes, commonImplicants)
+{
+    let BoolMatrix = [];
+
+    for(let i = 0; i < codes.length; ++i)
     {
-        let commonImplicants = [];
-        let tmp = [];
-
-        for(let i = 0; i < codes.length; ++i)
-            for(let j = 0; j < codes[i].length; ++j)
-                tmp.push(codes[i][j]);
-
-        for(let i = 0; i < tmp.length; ++i)
-            for(let j = 0; j < implicants.length; ++j)
-                if(dif(tmp[i], implicants[j]) != -1)
-                    commonImplicants.push(tmp[i]);
-        return commonImplicants;
+        BoolMatrix[i] = [];
+        for(let j = 0; j < codes[i].length; ++j)
+            BoolMatrix[i][j] = 0;
     }
+
+
+    //let commonImplicants = [];
+    let implicants = [];
+
+    for(let i =0; i < codes.length - 1; ++i)
+        for(let j = 0; j < codes[i].length; ++j)
+        {
+
+            for(let k = 0; k < codes[i + 1].length; ++k) {
+                //console.log(codes[i][])
+                let position = Compare(codes[i][j], codes[i + 1][k]);
+                if(position != -1)
+                {
+                    implicants.push(ReplaceAt(codes[i][j], position, "-"));
+                    BoolMatrix[i][j] = 1;
+                    BoolMatrix[i + 1][k] = 1;
+                }
+            }
+        }
+
+    implicants = SortPerCount(RemoveTheSame(implicants));
+
+    for(let i = 0; i < BoolMatrix.length; ++i)
+        for(let j = 0; j < BoolMatrix[i].length; ++j)
+            if(BoolMatrix[i][j] === 0)
+                commonImplicants.push(codes[i][j]);
+
+    /*
+    console.log(codes);
+    console.log(BoolMatrix);
+    console.log(SortPerCount(implicants));
+    console.log(commonImplicants);
+*/
+
+    return{implicants, commonImplicants};
+}
+
+/**
+ *  Усуває possition елемент
+ * @param {string}str
+ * @param {number}position
+ * @return {string}
+ * @constructor
+ */
+function RemoveSymbol(str, position)
+{
+    let result = '';
+    for(let i = 0; i < str.length; ++i)
+        if(i != position)
+            result += str[i];
+    return result;
+}
+//console.log(GetInterestCode("F0", 1))
