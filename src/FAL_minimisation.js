@@ -1,4 +1,14 @@
 const { HEX2BIN_TETRAD, DEC2BIN_TRIAD } = require("./base_converts");
+/*
+for(let i = 0; i < 16; ++i)
+    for(let j = 0; j < 16; ++j)
+    {
+        let str = i.toString(16) + j.toString(16);
+        console.log(str);
+        console.log("monimization for 1: " + MINIMIZATION41(str));
+        console.log("monimization for 0: " + MINIMIZATION40(str));
+    }
+//*/
 //________________________Public_____________________
 
 /**
@@ -21,11 +31,10 @@ function MINIMIZATION41(str) {
                 result += '!' + variables[j];
         }
         if(i != commonImplicans.length - 1)
-            result += " + ";
+            result += "+";
     }
     return result;
 }
-
 
 /**
  * Мінімізує за 0
