@@ -4,9 +4,10 @@
  */
 function ElementCounter(str)
 {
+    str += "";
     let result = new Map();
 
-    let implicants = Split(str, "v");
+    let implicants = str.split('v');
 
     let andCounter = AndCounter(implicants);
 
@@ -16,10 +17,9 @@ function ElementCounter(str)
     result.set(implicants.length + "І", 1);
 
     return result;
-    ;
 }
 
-console.log(ElementCounter("ghvab!ehv!abcd!egvcdehvabh!cd"));
+//console.log(ElementCounter("ghvab!ehv!abcd!egvcdehvabh!cd"));
 
 /**Лічильник "НЕ"
  * @param {string} str 
@@ -70,36 +70,6 @@ function AndCounter(implicants)
 
     for(let i = 0; i < tmp.length; ++i)
         ++result[tmp[i]-1];
-
-    return result;
-}
-
-/**Ділит на підрядки (гуглап не сприймає бібліотечної)
- * @param {string} str 
- * @param {string} sym 
- * @returns {string[]}
- */
-function Split(str, sym)
-{
-    
-    let subString = '';
-    let result = []; 
-    for(let i = 0; i < str.length; ++i)
-    {
-        if(str[i] == sym)
-        {
-            result.push(subString);
-            subString = '';
-        }
-        else
-        {
-            subString += str[i];
-        }
-    }
-
-    result.push(subString);
-
-    console.log(result);
 
     return result;
 }
