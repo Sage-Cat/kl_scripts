@@ -1,18 +1,18 @@
 const { HEX2BIN_TETRAD, DEC2BIN_TRIAD } = require("./base_converts");
-/*
+
+// ПЕРЕВІРКА
 for(let i = 0; i < 16; ++i)
     for(let j = 0; j < 16; ++j)
-    {
+    if(!((i == 0 && j ==0) || (i == 15 && j == 15))){
         let str = i.toString(16) + j.toString(16);
         console.log(str);
-        console.log("monimization for 1: " + MINIMIZATION41(str));
-        console.log("monimization for 0: " + MINIMIZATION40(str));
+        console.log("minimization for 1: " + MINIMIZATION41(str));
+        console.log("minimization for 0: " + MINIMIZATION40(str));
     }
 //*/
 //________________________Public_____________________
 
-/**
- * Мінімізує за 1
+/**Мінімізує за 1
  * @param {string}str "FF"
  * @return {string} "!a + !c"
  * @constructor
@@ -36,8 +36,7 @@ function MINIMIZATION41(str) {
     return result;
 }
 
-/**
- * Мінімізує за 0
+/**Мінімізує за 0
  * @param {string}str "FF"
  * @return {string} "c!b!a"
  * @constructor
@@ -112,8 +111,7 @@ module.exports = {
 
 //_________________________PRIVATE_________________
 
-/**
- * мінімізує функцію задану str за radix
+/**мінімізує функцію задану str за radix
  * @param {string}str FF
  * @param {string}radix 1/0
  * @return {any[]} Масив простих імплікант
@@ -127,10 +125,7 @@ function _minimization(str, radix)
 
     let commonImplicants = [];
     let implicants = SortPerCount(interestCodes);
-
-    //console.log(GetImplicants(implicants,commonImplicants));
-
-
+    
     do {
         let values
             = GetImplicants(implicants, commonImplicants);
@@ -141,15 +136,12 @@ function _minimization(str, radix)
     } while (implicants.length != 0)
 //*/
 
-    //console.log(commonImplicants);
-    //console.log(implicants);
-    //console.log(HEX2BIN_TETRAD(str));
+    let coverMatrix = CoverMatrix(interestCodes, commonImplicants);
 
-    return commonImplicants;
+    return GetMDNF(coverMatrix, commonImplicants);
 }
 
-/**
- * Виділення "цікавих" кодів
+/**Виділення "цікавих" кодів
  * @param {string}str код у 16
  * @param {string}radix 1/0
  * @return {*[]}
@@ -171,8 +163,7 @@ function GetInterestCode(str, radix)
     return result;
 }
 
-/**
- * Повертає к-сть 1 у str
+/**Повертає к-сть 1 у str
  * @param {string}str
  * @constructor
  */
@@ -187,8 +178,7 @@ function Counter(str)
     return counter;
 }
 
-/**
- * прибирє порожні підмасиви
+/**прибирає порожні підмасиви
  * @param {any[][]}array
  * @return {any[][]} повертає ТОЙ ЖЕ масив без порожніх підмасивів
  * @constructor
@@ -204,8 +194,7 @@ function RemoveSpaces(array)
     return array;
 }
 
-/**
- * Сортує масив за к-стю 1 в коді
+/**Сортує масив за к-стю 1 в коді
  * @param {string[]}unsortedArrayOfCodes
  * @return {any[][]}
  */
@@ -225,8 +214,7 @@ function SortPerCount(unsortedArrayOfCodes)
     return RemoveSpaces(result);
 }
 
-/**
- * Порівнює 2 рядки, якщо є 1 відмінність,
+/**Порівнює 2 рядки, якщо є 1 відмінність,
  * то повертає її позицію. Якщо їх нема,
  * або > 1, то повертає -1
  * @param {string}str1
@@ -251,8 +239,7 @@ function Compare(str1, str2)
         return -1;
 }
 
-/**
- * Заміняє position-ий символ рядка на заданий символ
+/**Заміняє position-ий символ рядка на заданий символ
  * @param {string}str рядок
  * @param {number}position позиція
  * @param {string}symbol символ
@@ -273,8 +260,7 @@ function ReplaceAt(str, position, symbol)
     return result;
 }
 
-/**
- * Прибирає елементи, що повторюються
+/**Прибирає елементи, що повторюються
  * @param {any[]}array
  * @return {*[]}
  * @constructor
@@ -288,8 +274,7 @@ function RemoveTheSame(array)
     return result;
 }
 
-/**
- * Знаходить прості та звичайні імпліканти
+/**Знаходить прості та звичайні імпліканти
  * @param {any[]}codes масив кодів (імплікант)
  * @param commonImplicants прості імпліканти
  * @return {{implicants: *[], commonImplicants: *[]}} об♥єкт {звичайні імпліканти, проті імпліканти}
@@ -343,8 +328,7 @@ function GetImplicants(codes, commonImplicants)
     return{implicants, commonImplicants};
 }
 
-/**
- *  Усуває possition елемент
+/**Усуває possition елемент
  * @param {string}str
  * @param {number}position
  * @return {string}
@@ -358,4 +342,98 @@ function RemoveSymbol(str, position)
             result += str[i];
     return result;
 }
-//console.log(GetInterestCode("F0", 1))
+
+/**Перевіряє, чи implicant перекриває code
+ * @param {string} code 
+ * @param {string} implicant 
+ * @returns {boolean} true|false
+ */
+function IsCover(code, implicant) {
+    let result = true;
+    for(let i = 0; i < code.length; ++i){
+        //console.log(i);
+        if(!(code[i] == implicant[i] || implicant[i] == "-"))
+            result = false;}
+    return result;
+}
+
+/** Повертає матрицю покриття
+ * @param {string[]} codes 
+ * @param {string[]} implicants 
+ * @returns {boolean[][]}
+ */
+function CoverMatrix(codes, implicants)
+{
+    let coverMatrix = [];
+
+    for(let i = 0; i < codes.length; ++i){
+            coverMatrix[i] = [];
+            for(let j = 0; j < implicants.length; ++j)
+                coverMatrix[i][j] = IsCover(codes[i], implicants[j]);
+    }
+
+    return coverMatrix;
+}
+
+/** Повертає довжину імпліканти
+ * @param {string} implicant 
+ * @returns {number}
+ */
+function GetMatterLength(implicant)
+{
+    let length = 0;
+    for (let i = 0; i < implicant.length; i++)
+        if(implicant[i] != "-")
+            ++length;
+    return length;
+}
+
+/** Повертає МДНФ
+ * @param {boolean[][]} coverMatrix 
+ * @param {string[]} implicant 
+ * @returns {string[]}
+ */
+function GetMDNF(coverMatrix, implicants)
+{
+    for(let i = 0; i < coverMatrix.length; ++i)
+    {
+        let counter = 0;
+        for(let j = 0; j < coverMatrix[i].length; ++j)
+            if(coverMatrix[i][j])
+                counter++;
+
+        if(counter == 1)
+        {
+            let position = -1;
+            for(let j = 0; j < coverMatrix[i].length; ++j)
+                if(coverMatrix[i][j])
+                {
+                    position = j;
+                    break;
+                }
+                
+            for(let k = coverMatrix.length - 1; k >= 0; --k)
+                if(coverMatrix[k][position] && k != i)
+                    coverMatrix.splice(k, 1);
+        }
+    }
+
+    let forDelete = [];
+
+    for(let j = coverMatrix[0].length - 1; j >= 0; j--)
+        for(let i = 0; i < coverMatrix.length; ++i)
+            if(coverMatrix[i][j] && !forDelete.includes(j))
+            {
+                for(let k = i; k < coverMatrix.length; ++k)
+                    if(coverMatrix[k][j])
+                        for(let l = 0; l < coverMatrix[k].length; ++l)
+                            if(l != j && coverMatrix[k][l] && !forDelete.includes(l))
+                                forDelete.push(l);
+            }    
+            
+    for(let i = implicants.length - 1; i >= 0; --i)
+        if(forDelete.includes(i))
+            implicants.splice(i,1);
+
+    return implicants;
+}
