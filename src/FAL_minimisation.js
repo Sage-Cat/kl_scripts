@@ -1,15 +1,5 @@
 const { HEX2BIN_TETRAD, DEC2BIN_TRIAD } = require("./base_converts");
 
-// ПЕРЕВІРКА
-for(let i = 0; i < 16; ++i)
-    for(let j = 0; j < 16; ++j)
-    if(!((i == 0 && j ==0) || (i == 15 && j == 15))){
-        let str = i.toString(16) + j.toString(16);
-        console.log(str);
-        console.log("minimization for 1: " + MINIMIZATION41(str));
-        console.log("minimization for 0: " + MINIMIZATION40(str));
-    }
-//*/
 //________________________Public_____________________
 
 /**Мінімізує за 1
@@ -317,13 +307,6 @@ function GetImplicants(codes, commonImplicants)
         for(let j = 0; j < BoolMatrix[i].length; ++j)
             if(BoolMatrix[i][j] === 0)
                 commonImplicants.push(codes[i][j]);
-
-    /*
-    console.log(codes);
-    console.log(BoolMatrix);
-    console.log(SortPerCount(implicants));
-    console.log(commonImplicants);
-*/
 
     return{implicants, commonImplicants};
 }
