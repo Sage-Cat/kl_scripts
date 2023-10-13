@@ -1,3 +1,4 @@
+//=============================PUBLIC============================================
 /** Підраховує к-сть необхідних елеменів для релізації функції у базисі Буля
  * @param {string} str 
  * @returns {string}
@@ -19,6 +20,12 @@ function ELEMENTCOUNTER31(str)
     return result;
 }
 
+module.exports = 
+{
+    ELEMENTCOUNTER31
+};
+
+//=============================PRIVATE============================================
 /**Лічильник "НЕ"
  * @param {string} str 
  * @returns {number}
