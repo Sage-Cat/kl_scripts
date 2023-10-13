@@ -2,16 +2,16 @@
  * @param {string} str 
  * @returns {string}
  */
-function ElementCounter(str)
+function ELEMENTCOUNTER31(str)
 {
     str += "";
     let result = new Map();
 
     let implicants = str.split('v');
 
-    let andCounter = AndCounter(implicants);
+    let andCounter = _andCounter(implicants);
 
-    result.set("1НЕ", NotCounter(str));
+    result.set("1НЕ", _notCounter(str));
     for(let i = 0; i < andCounter.length; ++i)
         result.set(i + 1 + "АБО", andCounter[i]);
     result.set(implicants.length + "І", 1);
@@ -19,13 +19,11 @@ function ElementCounter(str)
     return result;
 }
 
-//console.log(ElementCounter("ghvab!ehv!abcd!egvcdehvabh!cd"));
-
 /**Лічильник "НЕ"
  * @param {string} str 
  * @returns {number}
  */
-function NotCounter(str)
+function _notCounter(str)
 {
     let counter = 0;
     if(str.includes("!ab"))
@@ -46,7 +44,7 @@ function NotCounter(str)
  * @param {string[]} implicants 
  * @returns {number[]}
  */
-function AndCounter(implicants)
+function _andCounter(implicants)
 {
     let tmp = [];
     let result = [0,0,0,0,0];
