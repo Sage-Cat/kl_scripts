@@ -24,6 +24,16 @@ const HEX2BIN_TETRAD = (hex) => {
   return bin;
 };
 
+const DEC2BIN_TRIAD = (dec) => {
+  let bin = "";
+  for (let i = 0; i < dec.length; i++) {
+    let decDigit = parseInt(dec[i], 10);
+    let binDigit = decDigit.toString(2).padStart(3, "0");
+    bin += binDigit;
+  }
+  return bin;
+};
+
 if (typeof module !== "undefined") {
   module.exports = {
     DEC2HEX_EXTENDED,
@@ -34,6 +44,7 @@ if (typeof module !== "undefined") {
     HEX2OCT_EXTENDED,
     DEC2MODULAR,
     HEX2BIN_TETRAD,
+    DEC2BIN_TRIAD
   };
 }
 
