@@ -20,8 +20,6 @@ function ELEMENTCOUNTER31(str)
     return result;
 }
 
-console.log(ELEMENTCOUNTER31("!abcdvab"));
-
 module.exports = 
 {
     ELEMENTCOUNTER31
