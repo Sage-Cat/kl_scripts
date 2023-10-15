@@ -14,11 +14,13 @@ function ELEMENTCOUNTER31(str)
 
     result.set("1НЕ", _notCounter(str));
     for(let i = 0; i < andCounter.length; ++i)
-        result.set(i + 1 + "АБО", andCounter[i]);
-    result.set(implicants.length + "І", 1);
+        result.set(i + 1 + "I", andCounter[i]);
+    result.set(implicants.length + "АБО", 1);
 
     return result;
 }
+
+console.log(ELEMENTCOUNTER31("!abcdvab"));
 
 module.exports = 
 {
