@@ -7,7 +7,7 @@
  * 
  * 
  */
-function checkPosVar(text, res)
+function sortTermMin1(text, res)
 {
   let impl = text.split("+"); //сплітає +
   resAr = []
