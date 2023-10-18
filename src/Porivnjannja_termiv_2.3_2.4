@@ -1,4 +1,10 @@
-
+/**Перебирає усі комбінації ДНФ (завд 2.3)
+*@customfunction
+* @param {text} текст, який перевіряють
+* @param {text} текст, який є правильним
+* @return {bool} результат перевірки
+* @constructor
+*/
 function CheckForKNF(text, res)
 {  
   let starttext = text.split(")")
@@ -34,6 +40,14 @@ function CheckForKNF(text, res)
  
 }
 
+/**Перебирає усі комбінації КНФ (завд 2.4)
+*@customfunction
+* @param {text} текст, який перевіряють
+* @param {text} текст, який є правильним
+* @return {bool} результат перевірки
+* @constructor
+*/
+
 function CheckForDNF(text, res)
 {
   let impl = text.split("+"); //сплітає +
@@ -59,6 +73,7 @@ function CheckForDNF(text, res)
   return resret;
 }
 
+// приватна функція (до CheckForKNF та CheckForDNF)
 function get_Permutations(arr, select) {
     if (select === 0) {
         return [[]]; // Пустий масив - одна можлива комбінація
