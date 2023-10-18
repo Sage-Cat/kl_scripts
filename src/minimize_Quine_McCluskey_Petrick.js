@@ -1,7 +1,5 @@
 /**
- * Boolean Minimization Utility
- *
- * This module provides utility functions for minimizing Boolean functions using the Quine-McCluskey method.
+ * minimize_Quine_McCluskey_Petrick
  *
  * Data Structures:
  *
@@ -129,16 +127,37 @@ function areAdjacent(minterm1, minterm2) {
   }
 }
 
-function combineAdjacentTerms(term1, term2) {
-  let newTermBinary = "";
+function isAdjacent(term1, term2) {
+  let differenceCount = 0;
+
   for (let i = 0; i < term1.binaryString.length; i++) {
-    if (term1.binaryString[i] === term2.binaryString[i]) {
-      newTermBinary += term1.binaryString[i];
-    } else {
-      newTermBinary += "-";
+    if (term1.binaryString[i] !== term2.binaryString[i]) {
+      differenceCount++;
+    }
+
+    if (differenceCount > 1) {
+      return false;
     }
   }
-  return new Minterm(newTermBinary, null); // Using Minterm instead of Term
+
+  return differenceCount === 1;
+}
+
+function combineAdjacentTerms(term1, term2) {
+  let newTermBinary = "";
+
+  for (let i = 0; i < term1.binaryString.length; i++) {
+    if (term1.binaryString[i] !== term2.binaryString[i]) {
+      newTermBinary += "-";
+    } else {
+      newTermBinary += term1.binaryString[i];
+    }
+  }
+
+  let newTerm = new Minterm(newTermBinary, null);
+  newTerm.origin = [...term1.origin, ...term2.origin];
+
+  return newTerm.binaryString;
 }
 
 function combineTerms(groups) {
@@ -149,8 +168,6 @@ function combineTerms(groups) {
   for (let group of groups) {
     if (group && group.minterms) {
       console.log(group.minterms.map((term) => term.binaryString).join(", "));
-    } else {
-      console.log("[Error] Undefined group or missing minterms attribute.");
     }
   }
   console.log("-------");
@@ -190,15 +207,15 @@ function combineTerms(groups) {
     }
   }
 
-  console.log("[combineTerms] New Groups After Combining:");
-  for (let group of newGroups) {
-    console.log(group.minterms.map((term) => term.binaryString).join(", "));
-  }
-  console.log("-------");
+  // console.log("[Debugging] New Groups After Combining:");
+  // for (let group of newGroups) {
+  //   console.log(group.minterms.map((term) => term.binaryString).join(", "));
+  // }
+  // console.log("-------");
 
-  console.log("[combineTerms] Prime Implicants:");
-  for (let prime of primeImplicants) {
-    console.log(prime.binaryString, "covers:", prime.cover.join(", "));
+  console.log("[Debugging] Prime Implicants:");
+  for (let primeImplicant of primeImplicants) {
+    console.log(primeImplicant);
   }
   console.log("-------");
 
@@ -209,22 +226,27 @@ function combineTerms(groups) {
 function createPrimeImplicantChart(minterms, primeImplicants) {
   let chart = {};
 
+  // console.log(
+  //   "[Debugging] ----------------- PrimeImplicants -----------------"
+  // );
   for (let minterm of minterms) {
     chart[minterm.decimal] = [];
 
     for (let primeImplicant of primeImplicants) {
-      console.log("[Debugging] primeImplicant:", primeImplicant);
+      // console.log(primeImplicant);
       if (primeImplicant.cover.includes(minterm.decimal)) {
         chart[minterm.decimal].push(primeImplicant.binaryString);
       }
     }
   }
 
-  console.log("Prime Implicant Chart:");
-  for (let minterm in chart) {
-    console.log("Minterm:", minterm, "Covered by:", chart[minterm]);
-  }
-  console.log("-------");
+  // console.log(
+  //   "[Debugging] ----------------- Prime Implicant Chart -----------------"
+  // );
+  // for (let minterm in chart) {
+  //   console.log("Minterm:", minterm, "Covered by:", chart[minterm]);
+  // }
+  // console.log("-------");
 
   return chart;
 }
@@ -356,6 +378,132 @@ function generateResult(essentialPrimeImplicants, minimizedImplicants) {
   return result.join("+");
 }
 
+function identifyEssentialPrimeImplicants(minterms, primeImplicants) {
+  let primeImplicantChart = [];
+  for (let pi of primeImplicants) {
+    let row = [];
+    for (let minterm of minterms) {
+      if (pi.origin.includes(minterm)) {
+        row.push(1);
+      } else {
+        row.push(0);
+      }
+    }
+    primeImplicantChart.push(row);
+  }
+
+  let essentialPrimeImplicants = [];
+  for (let i = 0; i < minterms.length; i++) {
+    let count = 0;
+    let lastPIIndex = -1;
+    for (let j = 0; j < primeImplicants.length; j++) {
+      if (primeImplicantChart[j][i] === 1) {
+        count++;
+        lastPIIndex = j;
+      }
+    }
+    if (count === 1) {
+      essentialPrimeImplicants.push(primeImplicants[lastPIIndex]);
+    }
+  }
+
+  return essentialPrimeImplicants;
+}
+
+// Petricks method
+// Retrieve minterms that aren't covered by the essential prime implicants
+function getUncoveredMinterms(primeImplicantChart, essentialPrimeImplicants) {
+  let coveredMinterms = new Set();
+  for (let epi of essentialPrimeImplicants) {
+    for (let minterm of epi.cover) {
+      coveredMinterms.add(minterm);
+    }
+  }
+
+  let allMinterms = Object.keys(primeImplicantChart);
+  return allMinterms.filter((minterm) => !coveredMinterms.has(minterm));
+}
+
+// Construct the POS expression using the remaining minterms from the prime implicant chart
+function getProductOfSumsExpression(primeImplicantChart, remainingMinterms) {
+  let posExpression = [];
+  for (let minterm of remainingMinterms) {
+    let coveringImplicants = [];
+    for (let primeImplicant of Object.keys(primeImplicantChart[minterm])) {
+      if (primeImplicantChart[minterm][primeImplicant] === 1) {
+        coveringImplicants.push(primeImplicant);
+      }
+    }
+    posExpression.push(coveringImplicants);
+  }
+  return posExpression;
+}
+
+// Recursive function to expand the POS expression
+function expandPOS(posExpression) {
+  if (posExpression.length === 1) return posExpression[0];
+
+  let firstTerm = posExpression[0];
+  let remainingTerms = expandPOS(posExpression.slice(1));
+  let result = [];
+
+  for (let term1 of firstTerm) {
+    for (let term2 of remainingTerms) {
+      result.push(term1.concat(term2));
+    }
+  }
+  return result;
+}
+
+// Return the shortest combination of prime implicants
+function getShortestCombination(expandedExpressions) {
+  let minLength = Infinity;
+  let shortestExpression;
+
+  for (let expression of expandedExpressions) {
+    if (expression.length < minLength) {
+      minLength = expression.length;
+      shortestExpression = expression;
+    }
+  }
+
+  return shortestExpression;
+}
+
+// Petricks method
+function multiply(termsA, termsB) {
+  let product = [];
+  for (let termA of termsA) {
+    for (let termB of termsB) {
+      let combined = [...new Set([...termA, ...termB])];
+      product.push(combined);
+    }
+  }
+  return product;
+}
+
+function petricksMethod(remainingImplicants, mintermsToCover) {
+  let products = [];
+  for (let minterm of mintermsToCover) {
+    let product = [];
+    for (let implicant of remainingImplicants) {
+      if (implicant.origin.includes(minterm)) {
+        product.push(implicant);
+      }
+    }
+    products.push(product);
+  }
+
+  let solution = products[0];
+  for (let i = 1; i < products.length; i++) {
+    solution = multiply(solution, products[i]);
+  }
+
+  // Find the solution with the minimum number of terms
+  solution.sort((a, b) => a.length - b.length);
+  return solution[0];
+}
+
 // FULL PROCESS
 function hexToBinaryString(hexValue) {
   let binaryString = parseInt(hexValue, 16).toString(2);
@@ -365,7 +513,7 @@ function hexToBinaryString(hexValue) {
   return binaryString;
 }
 
-function minimize_Quine_McCluskey(hex_input) {
+function minimize_Quine_McCluskey_Petrick(hex_input) {
   let minterms = convertToMinterms(hex_input);
   let groups = groupMinterms(minterms);
   let combinedResult = combineTerms(groups);
@@ -381,5 +529,5 @@ function minimize_Quine_McCluskey(hex_input) {
 }
 
 // You can then use the function as:
-let minimizedResult = minimize_Quine_McCluskey("53433178");
+let minimizedResult = minimize_Quine_McCluskey_Petrick("53433178");
 console.log(minimizedResult);
