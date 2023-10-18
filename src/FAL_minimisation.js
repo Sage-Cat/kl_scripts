@@ -99,6 +99,81 @@ module.exports = {
     MINIMIZATION40
 };
 
+/**Перебирає усі комбінації ДНФ (завд 2.3)
+*@customfunction
+* @param {text} текст, який перевіряють
+* @param {text} текст, який є правильним
+* @return {bool} результат перевірки
+* @constructor
+*/
+function CheckForKNF(text, res)
+{  
+  let starttext = text.split(")")
+  let impl = []
+
+  for (i = 0; i < starttext.length - 1; i++)
+  {
+    impl[i] = starttext[i].replace("(", "")
+  }
+
+  resAr = []
+  comb = get_permutations(impl, impl.length); //функція для комбінацій
+  for(i = 0; i < comb.length; i++) // цикл для запису із +
+  {
+    let restext = "(" + comb[i][0];
+    for(j = 1; j < impl.length; j++)
+    {
+      restext += ")(" + comb[i][j];
+    }
+    restext += ")";
+    resAr[i] = restext;
+  }
+  resret = false; // немає збігу
+  for(i = 0; i < resAr.length; i++)
+  {
+    if(resAr[i] === res)
+    {
+      resret = true; // якщо є збіг з комбінацій - переставляє, інакше - не змінюється
+    }
+  }
+  
+  return resret; 
+ 
+}
+
+/**Перебирає усі комбінації КНФ (завд 2.4)
+*@customfunction
+* @param {text} текст, який перевіряють
+* @param {text} текст, який є правильним
+* @return {bool} результат перевірки
+* @constructor
+*/
+
+function CheckForDNF(text, res)
+{
+  let impl = text.split("+"); //сплітає +
+  resAr = []
+  comb = get_permutations(impl, impl.length); //функція для комбінацій
+  for(i = 0; i < comb.length; i++) // цикл для запису із +
+  {
+    let restext = comb[i][0];
+    for(j = 1; j < impl.length; j++)
+    {
+      restext += "+" + comb[i][j];
+    }
+    resAr[i] = restext;
+  }
+   resret = false; // немає збігу
+  for(i = 0; i < resAr.length; i++)
+  {
+    if(resAr[i] === res)
+    {
+      resret = true; // якщо є збіг з комбінацій - переставляє, інакше - не змінюється
+    }
+  }
+  return resret;
+}
+
 //_________________________PRIVATE_________________
 
 /**мінімізує функцію задану str за radix
@@ -406,4 +481,32 @@ function _getMDNF(coverMatrix, implicants)
             implicants.splice(i,1);
 
     return implicants;
+}
+
+// приватна функція (до CheckForKNF та CheckForDNF)
+function get_permutations(arr, select) {
+    if (select === 0) {
+        return [[]]; // Пустий масив - одна можлива комбінація
+    }
+
+    if (arr.length < select) {
+        return []; // Немає можливих комбінацій
+    }
+
+    if (select === 1) {
+        return arr.map(function(item) {
+            return [item];
+        });
+    }
+
+    var permutations = [];
+    for (var i = 0; i < arr.length; i++) {
+        var item = arr[i];
+        var rest = arr.slice(0, i).concat(arr.slice(i + 1));
+        var subPermutations = get_permutations(rest, select - 1);
+        for (var j = 0; j < subPermutations.length; j++) {
+            permutations.push([item].concat(subPermutations[j]));
+        }
+    }
+    return permutations;
 }
