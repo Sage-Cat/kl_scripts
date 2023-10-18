@@ -94,11 +94,6 @@ function MINIMIZATION40(str)
 
 }
 
-module.exports = {
-    MINIMIZATION41,
-    MINIMIZATION40
-};
-
 /**Перебирає усі комбінації ДНФ (завд 2.3)
 *@customfunction
 * @param {text} текст, який перевіряють
@@ -173,6 +168,13 @@ function CHECK_DNF_EQUAL(text, res)
   }
   return resret;
 }
+
+module.exports = {
+    MINIMIZATION41,
+    MINIMIZATION40,
+    CHECK_DNF_EQUAL,
+    CHECK_KNF_EQUAL
+};
 
 //_________________________PRIVATE_________________
 
