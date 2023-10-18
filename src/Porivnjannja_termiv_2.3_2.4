@@ -16,7 +16,7 @@ function CheckForKNF(text, res)
   }
 
   resAr = []
-  comb = get_Permutations(impl, impl.length); //функція для комбінацій
+  comb = get_permutations(impl, impl.length); //функція для комбінацій
   for(i = 0; i < comb.length; i++) // цикл для запису із +
   {
     let restext = "(" + comb[i][0];
@@ -52,7 +52,7 @@ function CheckForDNF(text, res)
 {
   let impl = text.split("+"); //сплітає +
   resAr = []
-  comb = get_Permutations(impl, impl.length); //функція для комбінацій
+  comb = get_permutations(impl, impl.length); //функція для комбінацій
   for(i = 0; i < comb.length; i++) // цикл для запису із +
   {
     let restext = comb[i][0];
@@ -74,7 +74,7 @@ function CheckForDNF(text, res)
 }
 
 // приватна функція (до CheckForKNF та CheckForDNF)
-function get_Permutations(arr, select) {
+function get_permutations(arr, select) {
     if (select === 0) {
         return [[]]; // Пустий масив - одна можлива комбінація
     }
@@ -93,7 +93,7 @@ function get_Permutations(arr, select) {
     for (var i = 0; i < arr.length; i++) {
         var item = arr[i];
         var rest = arr.slice(0, i).concat(arr.slice(i + 1));
-        var subPermutations = get_Permutations(rest, select - 1);
+        var subPermutations = get_permutations(rest, select - 1);
         for (var j = 0; j < subPermutations.length; j++) {
             permutations.push([item].concat(subPermutations[j]));
         }
