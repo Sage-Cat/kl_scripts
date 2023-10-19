@@ -1,533 +1,387 @@
 /**
- * minimize_Quine_McCluskey_Petrick
+ * minimize_Quine_McCluskey_Petrick.js
  *
- * Data Structures:
+ * - `Term` class: Represents a term with a binary string.
  *
- * 1. Minterm: Represents a single term in the Boolean function.
- * 2. Group: A collection of minterms. These are categorized based on the number of ones present in them.
- * 3. Prime Implicant: A term that stands alone and cannot be further combined with any other term.
+ * - `combineAdjacentTerms(term1, term2)`: Combines two adjacent terms.
  *
- * Utility Functions:
+ * - `formInitialGroups(input)`: Forms initial groups based on the input.
  *
- * 1. convertToMinterms(func):
- *    - Input: A Boolean function represented in its algebraic form.
- *    - Output: A list of minterms derived from the given Boolean function.
+ * - `findMinterms(terms)`: Identifies minterms from given terms.
  *
- * 2. groupMinterms(minterms):
- *    - Input: List of minterms.
- *    - Output: Minterms grouped by the number of ones present in them.
+ * - `isAdjacent(term1, term2)`: Checks if two terms are adjacent.
  *
- * 3. combineTerms(groups):
- *    - Input: Groups of minterms.
- *    - Output: A pair consisting of new groups formed by combining adjacent terms and a list of prime implicants.
+ * - `createImplicantsChart(terms, minterms)`: Creates a prime implicant chart.
  *
- * 4. createPrimeImplicantChart(minterms, primeImplicants):
- *    - Input: List of minterms and prime implicants.
- *    - Output: A chart that maps each minterm to its associated prime implicants.
+ * - `compareTermAndMinterm(binaryTerm, binaryMinterm)`: Compares a term and a minterm.
  *
- * 5. selectEssentialPrimeImplicants(chart):
- *    - Input: Prime implicant chart.
- *    - Output: A list of essential prime implicants.
+ * - `printCrossingMintermsChart(chart)`: Prints the minterms chart.
  *
- * 6. minimize(chart, essentialPrimeImplicants):
- *    - Input: Prime implicant chart and list of essential prime implicants.
- *    - Output: A minimized list of prime implicants required to represent the Boolean function.
+ * - `padString(str, len)`: Pads a string to a specified length.
  *
- * 7. generateResult(essentialPrimeImplicants, minimizedImplicants):
- *    - Input: List of essential and minimized prime implicants.
- *    - Output: The minimized Boolean expression in its algebraic form.
+ * - `centerPadString(str, len)`: Center-pads a string to a specified length.
  *
- * Note: Ensure correct order of function invocation for accurate results.
+ * - `findEssentialPrimeImplicants(chart)`: Identifies essential prime implicants from a chart.
+ *
+ * - `generatePOS(chart, essentialPIs)`: Generates a Product-of-Sums expression.
+ *
+ * - `convertPOSToSOP(essentialImplicants, chart)`: Converts a POS expression to a SOP expression.
+ *
+ * - `binaryToLiteral(binaryString, implicantIndex)`: Converts a binary string to its literal representation.
+ *
+ * - `binaryToExpression(binaryString)`: Converts a binary string to an expression.
+ *
+ * - `convertImplicantsToExpression(implicants)`: Converts implicants to their expression form.
+ *
+ * - `selectMinimumCover(sopExpression)`: Selects the minimum cover for a SOP expression.
+ *
+ * - `minimize_Quine_McCluskey_Petrick(input)`: Minimizes a boolean expression using the Quine-McCluskey method and Petrick's method.
+ *
  */
 
-// Data Structures
-class Minterm {
-  constructor(binaryString, decimal) {
+class Term {
+  constructor(binaryString) {
     this.binaryString = binaryString;
-    this.decimal = decimal;
-    this.isCombined = false;
-    this.origin = [decimal];
   }
 }
 
-class Group {
-  constructor(countOfOnes) {
-    this.countOfOnes = countOfOnes;
-    this.minterms = [];
+class Minterm extends Term {
+  constructor(binaryString, covers) {
+    super(binaryString, -1);
+    this.covers = covers;
   }
-}
-
-class PrimeImplicant {
-  constructor(binaryString, cover) {
-    this.binaryString = binaryString;
-    this.cover = cover;
-  }
-}
-
-function decimalToBinaryString(decimal, bitLength) {
-  let binaryString = decimal.toString(2);
-  while (binaryString.length < bitLength) {
-    binaryString = "0" + binaryString;
-  }
-  return binaryString;
-}
-
-function convertToMinterms(hexValue) {
-  let binaryString = hexToBinaryString(hexValue);
-  let minterms = [];
-
-  for (let i = 0; i < binaryString.length; i++) {
-    if (binaryString[i] === "1") {
-      minterms.push(new Minterm(decimalToBinaryString(i, 5), i));
-    }
-  }
-
-  return minterms;
-}
-
-// groupMinterms(minterms)
-function countOnes(binaryString) {
-  return Array.from(binaryString).filter((char) => char === "1").length;
-}
-
-function groupMinterms(minterms) {
-  let groups = [];
-
-  for (let minterm of minterms) {
-    let onesCount = (minterm.binaryString.match(/1/g) || []).length;
-
-    if (!groups[onesCount]) {
-      groups[onesCount] = new Group(onesCount);
-    }
-
-    groups[onesCount].minterms.push(minterm);
-  }
-
-  return groups;
-}
-
-// combineTerms(groups)
-function areAdjacent(minterm1, minterm2) {
-  let differenceCount = 0;
-  let result = "";
-
-  for (let i = 0; i < minterm1.binaryString.length; i++) {
-    if (minterm1.binaryString[i] !== minterm2.binaryString[i]) {
-      differenceCount++;
-      result += "-";
-    } else {
-      result += minterm1.binaryString[i];
-    }
-  }
-
-  if (differenceCount === 1) {
-    return result;
-  } else {
-    return null;
-  }
-}
-
-function isAdjacent(term1, term2) {
-  let differenceCount = 0;
-
-  for (let i = 0; i < term1.binaryString.length; i++) {
-    if (term1.binaryString[i] !== term2.binaryString[i]) {
-      differenceCount++;
-    }
-
-    if (differenceCount > 1) {
-      return false;
-    }
-  }
-
-  return differenceCount === 1;
 }
 
 function combineAdjacentTerms(term1, term2) {
-  let newTermBinary = "";
-
+  let result = "";
   for (let i = 0; i < term1.binaryString.length; i++) {
-    if (term1.binaryString[i] !== term2.binaryString[i]) {
-      newTermBinary += "-";
+    if (term1.binaryString[i] === term2.binaryString[i]) {
+      result += term1.binaryString[i];
     } else {
-      newTermBinary += term1.binaryString[i];
+      result += "-";
     }
   }
-
-  let newTerm = new Minterm(newTermBinary, null);
-  newTerm.origin = [...term1.origin, ...term2.origin];
-
-  return newTerm.binaryString;
+  // Merge the covers of both minterms
+  const combinedCovers = [...term1.covers, ...term2.covers];
+  return new Term(result, combinedCovers);
 }
 
-function combineTerms(groups) {
-  let newGroups = [];
-  let primeImplicants = [];
+function formInitialGroups(input) {
+  const termsWithX = [];
+  const termsWithoutX = [];
 
-  console.log("[combineTerms] Initial Groups:");
-  for (let group of groups) {
-    if (group && group.minterms) {
-      console.log(group.minterms.map((term) => term.binaryString).join(", "));
+  for (let i = 0; i < input.length; i++) {
+    if (input[i] !== "0") {
+      if (input[i] == "1") {
+        termsWithX.push(new Term(i.toString(2).padStart(5, "0"), i));
+        termsWithoutX.push(new Term(i.toString(2).padStart(5, "0"), i));
+      } else {
+        // x
+        termsWithX.push(new Term(i.toString(2).padStart(5, "0"), i));
+      }
     }
   }
-  console.log("-------");
 
-  // Filter out undefined groups
-  let definedGroups = groups.filter((group) => group && group.minterms);
+  return { termsWithX, termsWithoutX };
+}
 
-  for (let i = 0; i < definedGroups.length - 1; i++) {
-    let newGroup = new Group(definedGroups[i].countOfOnes + 1);
+function findMinterms(terms) {
+  let minterms = [];
+  let lastIterationTerms = terms.slice();
+  let newTerms = [];
+  let usedTerms = new Set();
 
-    for (let term1 of definedGroups[i].minterms) {
-      for (let term2 of definedGroups[i + 1].minterms) {
-        if (isAdjacent(term1, term2)) {
-          term1.isCombined = true;
-          term2.isCombined = true;
+  while (true) {
+    newTerms = [];
 
-          let newTermBinary = combineAdjacentTerms(term1, term2);
-          let newTerm = new Minterm(newTermBinary, null);
-
+    for (let i = 0; i < lastIterationTerms.length - 1; i++) {
+      for (let j = i + 1; j < lastIterationTerms.length; j++) {
+        if (isAdjacent(lastIterationTerms[i], lastIterationTerms[j])) {
+          usedTerms.add(lastIterationTerms[i].binaryString);
+          usedTerms.add(lastIterationTerms[j].binaryString);
+          const combinedTerm = combineAdjacentTerms(
+            lastIterationTerms[i],
+            lastIterationTerms[j]
+          );
+          const newPrimeImplicant = new Minterm(combinedTerm, [
+            lastIterationTerms[i].decimal,
+            lastIterationTerms[j].decimal,
+          ]);
           if (
-            !newGroup.minterms.some(
-              (term) => term.binaryString === newTerm.binaryString
+            !newTerms.some(
+              (term) => term.binaryString === newPrimeImplicant.binaryString
             )
           ) {
-            newGroup.minterms.push(newTerm);
+            newTerms.push(newPrimeImplicant);
           }
-
-          let cover = [...term1.origin, ...term2.origin];
-          let primeImplicant = new PrimeImplicant(newTermBinary, cover);
-          primeImplicants.push(primeImplicant);
         }
       }
     }
 
-    if (newGroup.minterms.length > 0) {
-      newGroups.push(newGroup);
+    minterms = minterms.concat(newTerms);
+
+    if (newTerms.length === 0) {
+      break;
+    }
+
+    lastIterationTerms = newTerms.slice();
+  }
+
+  // Filter out minterms that were part of a combination
+  minterms = minterms.filter((pi) => !usedTerms.has(pi.binaryString));
+
+  // Ensure the resulting minterms array has unique minterms
+  const uniqueMinterms = [];
+  for (let pi of minterms) {
+    if (!uniqueMinterms.some((term) => term.binaryString === pi.binaryString)) {
+      uniqueMinterms.push(pi);
     }
   }
 
-  // console.log("[Debugging] New Groups After Combining:");
-  // for (let group of newGroups) {
-  //   console.log(group.minterms.map((term) => term.binaryString).join(", "));
-  // }
-  // console.log("-------");
-
-  console.log("[Debugging] Prime Implicants:");
-  for (let primeImplicant of primeImplicants) {
-    console.log(primeImplicant);
-  }
-  console.log("-------");
-
-  return { newGroups, primeImplicants };
+  return uniqueMinterms;
 }
 
-// createPrimeImplicantChart(minterms, primeImplicants):
-function createPrimeImplicantChart(minterms, primeImplicants) {
+function isAdjacent(term1, term2) {
+  let diffCount = 0;
+  for (let i = 0; i < term1.binaryString.length; i++) {
+    if (term1.binaryString[i] !== term2.binaryString[i]) diffCount++;
+    if (diffCount > 1) return false;
+  }
+  return diffCount === 1;
+}
+
+function combineAdjacentTerms(term1, term2) {
+  let result = "";
+  for (let i = 0; i < term1.binaryString.length; i++) {
+    if (term1.binaryString[i] === term2.binaryString[i]) {
+      result += term1.binaryString[i];
+    } else {
+      result += "-";
+    }
+  }
+  return result;
+}
+
+function createImplicantsChart(terms, minterms) {
   let chart = {};
 
-  // console.log(
-  //   "[Debugging] ----------------- PrimeImplicants -----------------"
-  // );
-  for (let minterm of minterms) {
-    chart[minterm.decimal] = [];
+  function compareTermAndMinterm(binaryTerm, binaryMinterm) {
+    for (let i = 0; i < binaryMinterm.length; i++) {
+      if (binaryMinterm[i] !== "-" && binaryTerm[i] !== binaryMinterm[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-    for (let primeImplicant of primeImplicants) {
-      // console.log(primeImplicant);
-      if (primeImplicant.cover.includes(minterm.decimal)) {
-        chart[minterm.decimal].push(primeImplicant.binaryString);
+  for (let term of terms) {
+    chart[term.binaryString] = [];
+
+    for (let minterm of minterms) {
+      if (compareTermAndMinterm(term.binaryString, minterm.binaryString)) {
+        chart[term.binaryString].push(minterm.binaryString);
       }
     }
   }
-
-  // console.log(
-  //   "[Debugging] ----------------- Prime Implicant Chart -----------------"
-  // );
-  // for (let minterm in chart) {
-  //   console.log("Minterm:", minterm, "Covered by:", chart[minterm]);
-  // }
-  // console.log("-------");
 
   return chart;
 }
 
-// selectEssentialPrimeImplicants(chart)
-function selectEssentialPrimeImplicants(chart) {
-  let essentialPrimeImplicants = [];
+function printCrossingMintermsChart(chart) {
+  // Extract all unique prime implicants from the chart
+  const allPrimeImplicants = [...new Set([].concat(...Object.values(chart)))];
 
+  // Calculate the maximum width for padding purposes
+  const maxWidth = Math.max(...allPrimeImplicants.map((pi) => pi.length));
+
+  // Print the header
+  let header = padString("Minterm", 8) + " | ";
+  for (let primeImplicant of allPrimeImplicants) {
+    header += padString(primeImplicant, maxWidth + 2); // 2 is for the spaces between columns
+  }
+  console.log(header);
+  console.log("-".repeat(header.length));
+
+  // Print the rows
+  for (let [minterm, coveredPrimeImplicants] of Object.entries(chart)) {
+    let row = padString(minterm, 8) + " | ";
+    for (let primeImplicant of allPrimeImplicants) {
+      if (coveredPrimeImplicants.includes(primeImplicant)) {
+        row += centerPadString("*", maxWidth) + "  "; // 2 spaces between columns
+      } else {
+        row += padString(" ", maxWidth) + "  "; // 2 spaces between columns
+      }
+    }
+    console.log(row);
+  }
+}
+
+// Helper function
+function padString(str, len) {
+  return str + " ".repeat(len - str.length);
+}
+
+function centerPadString(str, len) {
+  const totalPadding = len - str.length;
+  const leftPadding = Math.floor(totalPadding / 2);
+  const rightPadding = totalPadding - leftPadding;
+  return " ".repeat(leftPadding) + str + " ".repeat(rightPadding);
+}
+
+function findEssentialPrimeImplicants(chart) {
+  let essentialPIs = [];
   for (let minterm in chart) {
     if (chart[minterm].length === 1) {
-      let primeImplicant = chart[minterm][0];
-      if (!essentialPrimeImplicants.includes(primeImplicant)) {
-        essentialPrimeImplicants.push(primeImplicant);
+      const essentialPI = chart[minterm][0];
+      if (!essentialPIs.includes(essentialPI)) {
+        essentialPIs.push(essentialPI);
       }
     }
   }
-
-  return essentialPrimeImplicants;
+  return essentialPIs;
 }
 
-// minimize(chart, essentialPrimeImplicants)
-function removeCoveredMinterms(chart, essentialPrimeImplicants) {
-  let reducedChart = { ...chart };
+function generatePOS(chart, essentialPIs) {
+  let posExpression = [];
 
-  for (let minterm in reducedChart) {
-    for (let primeImplicant of essentialPrimeImplicants) {
-      if (reducedChart[minterm].includes(primeImplicant)) {
-        delete reducedChart[minterm];
-        break;
-      }
+  for (let minterm in chart) {
+    let primeImplicants = chart[minterm].filter(
+      (pi) => !essentialPIs.includes(pi)
+    );
+    if (primeImplicants.length > 0) {
+      posExpression.push(primeImplicants);
     }
   }
 
-  return reducedChart;
+  return posExpression;
 }
 
-function generateCombinations(arr) {
-  if (arr.length === 0) return [[]];
-  let firstElem = arr.shift();
-  let withoutFirst = generateCombinations(arr);
-  let withFirst = withoutFirst.map((e) => [firstElem, ...e]);
-  return withoutFirst.concat(withFirst);
-}
+function convertPOSToSOP(essentialImplicants, chart) {
+  function binaryToLiteral(binaryString, implicantIndex) {
+    let literals = ["a", "b", "c", "d", "e"];
+    let result = "";
 
-function minimize(chart, essentialPrimeImplicants) {
-  let reducedChart = removeCoveredMinterms(chart, essentialPrimeImplicants);
-  let remainingMinterms = Object.keys(reducedChart);
-  let remainingPrimeImplicants = [];
-
-  for (let minterm in reducedChart) {
-    remainingPrimeImplicants.push(...reducedChart[minterm]);
-  }
-
-  remainingPrimeImplicants = [...new Set(remainingPrimeImplicants)];
-
-  let allCombinations = generateCombinations(remainingPrimeImplicants);
-  let minimalCoverage = [];
-
-  for (let combination of allCombinations) {
-    let coveredMinterms = [];
-
-    for (let primeImplicant of combination) {
-      for (let minterm in reducedChart) {
-        if (reducedChart[minterm].includes(primeImplicant)) {
-          coveredMinterms.push(minterm);
+    for (let i = 0; i < binaryString.length; i++) {
+      if (binaryString[i] !== "-") {
+        if (binaryString[i] === "0") {
+          result += "!" + literals[i];
+        } else {
+          result += literals[i];
         }
       }
     }
+    return result.length > 0 ? result : `I${implicantIndex}`;
+  }
 
-    coveredMinterms = [...new Set(coveredMinterms)];
+  let sop = "";
+  let addedTerms = new Set();
 
-    if (
-      JSON.stringify(coveredMinterms.sort()) ===
-      JSON.stringify(remainingMinterms.sort())
-    ) {
-      if (
-        minimalCoverage.length === 0 ||
-        combination.length < minimalCoverage.length
-      ) {
-        minimalCoverage = combination;
-      }
+  for (let [term, coveredPrimeImplicants] of Object.entries(chart)) {
+    let currentProduct = "";
+    let termLiteral = binaryToLiteral(term);
+
+    for (let implicant of coveredPrimeImplicants) {
+      let implicantLiteral = binaryToLiteral(implicant);
+      currentProduct +=
+        (currentProduct.length > 0 ? "!" : "") + implicantLiteral;
+    }
+
+    if (!addedTerms.has(currentProduct)) {
+      sop +=
+        (sop.length > 0 ? " + " : "") +
+        termLiteral +
+        (currentProduct.length > 0 ? "!" + currentProduct : "");
+      addedTerms.add(currentProduct);
     }
   }
 
-  console.log("Minimized Implicants (excluding essential):");
-  for (let implicant of minimalCoverage) {
-    if (!essentialPrimeImplicants.includes(implicant)) {
-      console.log(implicant);
-    }
-  }
-  console.log("-------");
-
-  return minimalCoverage.concat(essentialPrimeImplicants);
+  return sop;
 }
 
-// generateResult(essentialPrimeImplicants, minimizedImplicants)
-function implicantToExpression(implicant) {
+function binaryToExpression(binaryString) {
+  const variables = ["ab", "cd", "e", "g", "h"]; // Adjust as per your requirements
   let expression = "";
-  const variables = ["(ab)", "(cd)", "e", "g", "h"];
 
-  for (let i = 0; i < implicant.length; i++) {
-    if (implicant[i] === "1") {
+  for (let i = 0; i < binaryString.length; i++) {
+    if (binaryString[i] !== "-") {
+      if (binaryString[i] === "0") {
+        expression += "!";
+      }
       expression += variables[i];
-    } else if (implicant[i] === "0") {
-      expression += "!" + variables[i];
     }
   }
 
   return expression;
 }
 
-function generateResult(essentialPrimeImplicants, minimizedImplicants) {
-  let result = [];
+function convertImplicantsToExpression(implicants) {
+  return implicants.map(binaryToExpression).join(" + ");
+}
 
-  for (let primeImplicant of essentialPrimeImplicants) {
-    result.push(implicantToExpression(primeImplicant));
-  }
+function selectMinimumCover(sopExpression) {
+  let minLiterals = Infinity;
+  let minimumCover = [];
 
-  for (let primeImplicant of minimizedImplicants) {
-    if (!essentialPrimeImplicants.includes(primeImplicant)) {
-      result.push(implicantToExpression(primeImplicant));
+  for (let term of sopExpression) {
+    if (term.length < minLiterals) {
+      minLiterals = term.length;
+      minimumCover = [term];
+    } else if (term.length === minLiterals) {
+      minimumCover.push(term);
     }
   }
 
-  console.log("Final Minimized Expression:");
-  console.log(result.join("+"));
-  console.log("-------");
-
-  return result.join("+");
+  return minimumCover;
 }
 
-function identifyEssentialPrimeImplicants(minterms, primeImplicants) {
-  let primeImplicantChart = [];
-  for (let pi of primeImplicants) {
-    let row = [];
-    for (let minterm of minterms) {
-      if (pi.origin.includes(minterm)) {
-        row.push(1);
-      } else {
-        row.push(0);
-      }
-    }
-    primeImplicantChart.push(row);
-  }
+function minimize_Quine_McCluskey_Petrick(input) {
+  // Convert input string to minterms
+  console.log("Input=" + input);
+  console.log("--------------");
 
-  let essentialPrimeImplicants = [];
-  for (let i = 0; i < minterms.length; i++) {
-    let count = 0;
-    let lastPIIndex = -1;
-    for (let j = 0; j < primeImplicants.length; j++) {
-      if (primeImplicantChart[j][i] === 1) {
-        count++;
-        lastPIIndex = j;
-      }
-    }
-    if (count === 1) {
-      essentialPrimeImplicants.push(primeImplicants[lastPIIndex]);
-    }
-  }
+  // Step 1: Forming initial groups
+  console.log("Step 1: Forming initial groups");
+  const { termsWithX, termsWithoutX } = formInitialGroups(input);
 
-  return essentialPrimeImplicants;
+  // Display the minterms without 'x'
+  console.log(`Minterms without 'x' (count = ${termsWithoutX.length}):`);
+  console.log(termsWithoutX.map((term) => term.binaryString).join(", "));
+
+  // Display the minterms with 'x'
+  console.log(`Minterms with 'x' (count = ${termsWithX.length}):`);
+  console.log(termsWithX.map((term) => term.binaryString).join(", "));
+
+  // Step 2: Perform crossings
+  console.log("--------------");
+  console.log("Step 2: Perform crossings");
+  let minterms = findMinterms(termsWithX);
+  console.log(`Implicants (count = ${termsWithoutX.length}):`);
+  console.log(minterms.map((pi) => pi.binaryString).join(", "));
+
+  // Step 3: Prime Implicant Chart
+  console.log("--------------");
+  console.log("Step 3: Prime Implicant Chart");
+  let chart = createImplicantsChart(termsWithoutX, minterms);
+  printCrossingMintermsChart(chart);
+
+  // Step 4: Petrick's Method
+  console.log("--------------");
+  console.log("Step 4: Petrick's Method");
+  let essentialPrimeImplicants = findEssentialPrimeImplicants(chart);
+  console.log(essentialPrimeImplicants);
+  // let posExpression = generatePOS(chart, essentialPrimeImplicants);
+  // const sopExpression = convertPOSToSOP(posExpression);
+
+  // Step 5: Conversion to Desired Output
+  console.log("--------------");
+  console.log("Step 5: Conversion to Desired Output");
+  // const logicalExpression = convertImplicantsToExpression(
+  //   sopExpression.split("+")
+  // );
+
+  // return logicalExpression;
 }
 
-// Petricks method
-// Retrieve minterms that aren't covered by the essential prime implicants
-function getUncoveredMinterms(primeImplicantChart, essentialPrimeImplicants) {
-  let coveredMinterms = new Set();
-  for (let epi of essentialPrimeImplicants) {
-    for (let minterm of epi.cover) {
-      coveredMinterms.add(minterm);
-    }
-  }
-
-  let allMinterms = Object.keys(primeImplicantChart);
-  return allMinterms.filter((minterm) => !coveredMinterms.has(minterm));
-}
-
-// Construct the POS expression using the remaining minterms from the prime implicant chart
-function getProductOfSumsExpression(primeImplicantChart, remainingMinterms) {
-  let posExpression = [];
-  for (let minterm of remainingMinterms) {
-    let coveringImplicants = [];
-    for (let primeImplicant of Object.keys(primeImplicantChart[minterm])) {
-      if (primeImplicantChart[minterm][primeImplicant] === 1) {
-        coveringImplicants.push(primeImplicant);
-      }
-    }
-    posExpression.push(coveringImplicants);
-  }
-  return posExpression;
-}
-
-// Recursive function to expand the POS expression
-function expandPOS(posExpression) {
-  if (posExpression.length === 1) return posExpression[0];
-
-  let firstTerm = posExpression[0];
-  let remainingTerms = expandPOS(posExpression.slice(1));
-  let result = [];
-
-  for (let term1 of firstTerm) {
-    for (let term2 of remainingTerms) {
-      result.push(term1.concat(term2));
-    }
-  }
-  return result;
-}
-
-// Return the shortest combination of prime implicants
-function getShortestCombination(expandedExpressions) {
-  let minLength = Infinity;
-  let shortestExpression;
-
-  for (let expression of expandedExpressions) {
-    if (expression.length < minLength) {
-      minLength = expression.length;
-      shortestExpression = expression;
-    }
-  }
-
-  return shortestExpression;
-}
-
-// Petricks method
-function multiply(termsA, termsB) {
-  let product = [];
-  for (let termA of termsA) {
-    for (let termB of termsB) {
-      let combined = [...new Set([...termA, ...termB])];
-      product.push(combined);
-    }
-  }
-  return product;
-}
-
-function petricksMethod(remainingImplicants, mintermsToCover) {
-  let products = [];
-  for (let minterm of mintermsToCover) {
-    let product = [];
-    for (let implicant of remainingImplicants) {
-      if (implicant.origin.includes(minterm)) {
-        product.push(implicant);
-      }
-    }
-    products.push(product);
-  }
-
-  let solution = products[0];
-  for (let i = 1; i < products.length; i++) {
-    solution = multiply(solution, products[i]);
-  }
-
-  // Find the solution with the minimum number of terms
-  solution.sort((a, b) => a.length - b.length);
-  return solution[0];
-}
-
-// FULL PROCESS
-function hexToBinaryString(hexValue) {
-  let binaryString = parseInt(hexValue, 16).toString(2);
-  while (binaryString.length < 32) {
-    binaryString = "0" + binaryString;
-  }
-  return binaryString;
-}
-
-function minimize_Quine_McCluskey_Petrick(hex_input) {
-  let minterms = convertToMinterms(hex_input);
-  let groups = groupMinterms(minterms);
-  let combinedResult = combineTerms(groups);
-  let chart = createPrimeImplicantChart(
-    minterms,
-    combinedResult.primeImplicants
-  );
-  let essentialPrimeImplicants = selectEssentialPrimeImplicants(chart);
-  let minimizedImplicants = minimize(chart, essentialPrimeImplicants);
-  let result = generateResult(essentialPrimeImplicants, minimizedImplicants);
-
-  return result.split("+");
-}
-
-// You can then use the function as:
-let minimizedResult = minimize_Quine_McCluskey_Petrick("53433178");
-console.log(minimizedResult);
+const input = "00x10x11x11x10x00x11x10x01x00x11"; // Sample input
+const result = minimize_Quine_McCluskey_Petrick(input);
+// console.log(result);
