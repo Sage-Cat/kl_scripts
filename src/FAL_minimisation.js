@@ -101,39 +101,61 @@ function MINIMIZATION40(str)
 * @return {bool} результат перевірки
 * @constructor
 */
-function CHECK_KNF_EQUAL(text, res)
-{  
-  let starttext = text.split(")")
-  let impl = []
-
-  for (i = 0; i < starttext.length - 1; i++)
+function CheckForDNF(text, res)
+{
+  text = "ba+!ac"
+  res = "!ac+ab"
+  let implStart = text.split("+"); //сплітає +
+  
+  let impl = [] //готовий масив після сортування літер в термах
+  for(i = 0; i < implStart.length; i++)
   {
-    impl[i] = starttext[i].replace("(", "")
-  }
-
-  resAr = []
-  comb = _getPermutations(impl, impl.length); //функція для комбінацій
-  for(i = 0; i < comb.length; i++) // цикл для запису із +
-  {
-    let restext = "(" + comb[i][0];
-    for(j = 1; j < impl.length; j++)
+    var sortEl = implStart[i];
+    var readyEl = "";
+    let letterAr = []
+    for(j = 0; j < sortEl.length; j++)
     {
-      restext += ")(" + comb[i][j];
+      var implEl = ""
+      if(sortEl[j] === '!')
+      {
+        j++;
+        implEl += sortEl[j] + "!";
+      }
+      else
+      {
+        implEl += sortEl[j];
+      }
+
+      letterAr.push(implEl);
     }
-    restext += ")";
-    resAr[i] = restext;
-  }
-  resret = false; // немає збігу
-  for(i = 0; i < resAr.length; i++)
-  {
-    if(resAr[i] === res)
+    letterAr.sort();
+
+    letterAr = letterAr.map(function(str) 
     {
-      resret = true; // якщо є збіг з комбінацій - переставляє, інакше - не змінюється
+      return str.split('').reverse().join('');
+    });
+
+    for(k = 0; k < letterAr.length; k++)
+    {
+      readyEl += letterAr[k];
     }
+    impl.push(readyEl);
   }
   
-  return resret; 
- 
+  let resText = res.split("+"); //сплітає +
+  resText.sort();
+  impl.sort()
+
+  console.log(impl)
+  console.log(resText)
+  resret = false; // немає збігу
+  if(impl.toString() === resText.toString())
+  {
+    resret = true; 
+  }
+
+  console.log(resret)
+  return resret;
 }
 
 /**Перебирає усі комбінації КНФ (завд 2.4)
@@ -143,31 +165,68 @@ function CHECK_KNF_EQUAL(text, res)
 * @return {bool} результат перевірки
 * @constructor
 */
+function CheckForKNF(text, res)
+{  
+  text = "(!b+a)(ac)"
+  res = "(a+c)(a+!b)"
+  let starttext = text.split(")")
+  let implStart = []
 
-function CHECK_DNF_EQUAL(text, res)
-{
-  let impl = text.split("+"); //сплітає +
-  resAr = []
-  comb = _getPermutations(impl, impl.length); //функція для комбінацій
-  for(i = 0; i < comb.length; i++) // цикл для запису із +
+  for (i = 0; i < starttext.length - 1; i++)
   {
-    let restext = comb[i][0];
-    for(j = 1; j < impl.length; j++)
-    {
-      restext += "+" + comb[i][j];
-    }
-    resAr[i] = restext;
+    implStart[i] = starttext[i].replace("(", "")
   }
-   resret = false; // немає збігу
-  for(i = 0; i < resAr.length; i++)
+  let impl = []
+
+  for(i = 0; i < implStart.length; i++)
   {
-    if(resAr[i] === res)
+    let sortEl = implStart[i].split("+");
+    var readyEl = "";
+    sortEl.sort();
+    for(j = 0; j < sortEl.length; j++)
     {
-      resret = true; // якщо є збіг з комбінацій - переставляє, інакше - не змінюється
+      readyEl += sortEl[j];
     }
+    impl.push(readyEl);
   }
-  return resret;
+
+  let startRes = res.split(")")
+  let resTextStart = [];
+  for (i = 0; i < startRes.length - 1; i++)
+  {
+    resTextStart[i] = startRes[i].replace("(", "")
+  }
+  let resText = [];
+  for(i = 0; i < resTextStart.length; i++)
+  {
+    let sortEl = resTextStart[i].split("+");
+    var readyEl = "";
+    sortEl.sort();
+    for(j = 0; j < sortEl.length; j++)
+    {
+      readyEl += sortEl[j];
+    }
+    resText.push(readyEl);
+  }
+
+
+  resText.sort();
+  impl.sort()
+
+  console.log(impl)
+  console.log(resText)
+  resret = false; // немає збігу
+  if(impl.toString() === resText.toString())
+  {
+    resret = true; 
+  }
+  console.log(resret)
+  
+  return resret; 
+ 
 }
+
+
 
 module.exports = {
     MINIMIZATION41,
@@ -485,30 +544,3 @@ function _getMDNF(coverMatrix, implicants)
     return implicants;
 }
 
-// приватна функція (до CheckForKNF та CheckForDNF)
-function _getPermutations(arr, select) {
-    if (select === 0) {
-        return [[]]; // Пустий масив - одна можлива комбінація
-    }
-
-    if (arr.length < select) {
-        return []; // Немає можливих комбінацій
-    }
-
-    if (select === 1) {
-        return arr.map(function(item) {
-            return [item];
-        });
-    }
-
-    var permutations = [];
-    for (var i = 0; i < arr.length; i++) {
-        var item = arr[i];
-        var rest = arr.slice(0, i).concat(arr.slice(i + 1));
-        var subPermutations = _getPermutations(rest, select - 1);
-        for (var j = 0; j < subPermutations.length; j++) {
-            permutations.push([item].concat(subPermutations[j]));
-        }
-    }
-    return permutations;
-}
