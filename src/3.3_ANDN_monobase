@@ -1,0 +1,99 @@
+/**Підраховує кількість елементів, необхідних у схемі (завд 3.3)
+*@customfunction
+* @param {text} вхідна днф
+* @return {text} мапа усіх елементів та їх кількість, зручна для розділення через ";" між клмпонентами та ":" між кількістю
+* @constructor
+*/
+function CountAnyMonoANDN(dnf)
+{
+  let allElements = []
+  let impl = dnf.split("+");
+  var st1 = "НЕ-" + impl.length + "АБО";
+  allElements.push(st1);
+  for(i = 0; i < impl.length; i++)
+  {
+    var implVar = impl[i];
+    let impEl = [];
+    if(implVar.length > 1 && implVar != "ab" && implVar != "!ab" && implVar != "cd" && implVar != "cd!")
+    {
+      for(j = 0; j < implVar.length; j++)
+      {
+        var letter = ""
+        if(implVar[j] === "!")
+        {
+          letter += "!";
+          j++;
+        }
+        switch (implVar[j]) 
+        {
+          case "a":
+            letter += "ab";
+            impEl.push(letter);
+            j++
+            break;
+          case "c":
+            letter += "cd";
+            impEl.push(letter);
+            j++
+            break;
+          default:
+            letter += implVar[j];
+            impEl.push(letter);
+            break;
+        }
+      }
+      var st2 = impEl.length + "І-НЕ";
+      allElements.push(st2);
+    }
+  }
+  // console.log(allElements);
+  let elementsSet = new Set();
+  for (i = 0; i < allElements.length; i++)
+  {
+    var el = allElements[i];
+    elementsSet.add(el);
+  }
+  let elements = Array.from(elementsSet);
+  // console.log(elements);
+  // console.log(elements.length);
+  let result = new Map();
+  for(i = 0; i < elements.length; i++)
+  {
+    var keyM = elements[i];
+    result.set(keyM, 0);
+  }
+  result.set("НЕ", 5)
+
+  for(i = 0; i < elements.length; i++)
+  {
+    for(j = 0; j < allElements.length; j++)
+    {
+      if(elements[i] === allElements[j])
+      {
+        var count = result.get(elements[i]);
+        count++;
+        result.set(elements[i], count);
+      }
+    }
+  }
+
+  let resEl = [];
+  result.forEach(function(value, key) {
+    resEl.push(key + ":" + value);  
+  });
+  var res = "";
+  for(i = 0; i < resEl.length; i++)
+  {
+    res += resEl[i];
+    if(i != resEl.length - 1)
+    {
+      res += ";";
+    }
+  }
+  res[res.length - 2];
+  result.forEach(function(value, key) {
+    console.log(key, value);  
+  });
+  console.log(res);
+  return res;
+}
