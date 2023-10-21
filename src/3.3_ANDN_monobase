@@ -1,3 +1,9 @@
+/**Підраховує кількість елементів, необхідних у схемі (завд 3.3)
+*@customfunction
+* @param {text} вхідна днф
+* @return {text} мапа усіх елементів та їх кількість, зручна для розділення через ";" між клмпонентами та ":" між кількістю
+* @constructor
+*/
 function CountAnyMonoANDN(dnf)
 {
   let allElements = []
