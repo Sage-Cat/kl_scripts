@@ -1,0 +1,84 @@
+/**Підраховує кількість елементів, необхідних у схемі (завд 3.5)
+*@customfunction
+* @param {text} вхідна днф
+* @return {text} мапа усіх елементів та їх кількість, зручна для розділення через ";" між клмпонентами та ":" між кількістю
+* @constructor
+*/
+function CountAnyMonoORN(knf)
+{
+  knf = "(!ab+!cd+!e+h)(!cd+g+h)(cd+e!+h)(ab+cd+e)"
+  let allElements = []
+  let starttext = knf.split(")")
+  let impl = [];
+
+  for (i = 0; i < starttext.length - 1; i++)
+  {
+    impl[i] = starttext[i].replace("(", "")
+  }
+
+  console.log(impl);
+  
+  var st1 = "НЕ-" + impl.length + "І";
+  allElements.push(st1);
+  for(i = 0; i < impl.length; i++)
+  {
+    let implEl = impl[i].split("+");
+    var st2 = implEl.length + "АБО-НЕ";
+    allElements.push(st2);
+  }
+  console.log(allElements);
+
+  // console.log(allElements);
+  let elementsSet = new Set();
+  for (i = 0; i < allElements.length; i++)
+  {
+    var el = allElements[i];
+    elementsSet.add(el);
+  }
+  let elements = Array.from(elementsSet);
+  // console.log(elements);
+  // console.log(elements.length);
+  let result = new Map();
+  for(i = 0; i < elements.length; i++)
+  {
+    var keyM = elements[i];
+    result.set(keyM, 0);
+  }
+  result.set("НЕ", 5)
+
+  for(i = 0; i < elements.length; i++)
+  {
+    for(j = 0; j < allElements.length; j++)
+    {
+      if(elements[i] === allElements[j])
+      {
+        var count = result.get(elements[i]);
+        count++;
+        result.set(elements[i], count);
+      }
+    }
+  }
+
+  let resEl = [];
+  result.forEach(function(value, key) {
+    resEl.push(key + ":" + value);  
+  });
+  var res = "";
+  for(i = 0; i < resEl.length; i++)
+  {
+    res += resEl[i];
+    if(i != resEl.length - 1)
+    {
+      res += ";";
+    }
+  }
+  res[res.length - 2];
+  result.forEach(function(value, key) {
+    console.log(key, value);  
+  });
+  console.log(res);
+  return res;
+
+  
+  
+}
