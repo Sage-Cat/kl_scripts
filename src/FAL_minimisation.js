@@ -165,8 +165,6 @@ function CheckForDNF(text, res)
 */
 function CheckForKNF(text, res)
 {  
-  text = "(!b+a)(ac)"
-  res = "(a+c)(a+!b)"
   let starttext = text.split(")")
   let implStart = []
 
