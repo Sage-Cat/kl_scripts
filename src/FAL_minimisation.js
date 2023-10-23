@@ -103,8 +103,6 @@ function MINIMIZATION40(str)
 */
 function CheckForDNF(text, res)
 {
-  text = "ba+!ac"
-  res = "!ac+ab"
   let implStart = text.split("+"); //сплітає +
   
   let impl = [] //готовий масив після сортування літер в термах
