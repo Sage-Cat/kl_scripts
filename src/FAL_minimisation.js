@@ -101,7 +101,7 @@ function MINIMIZATION40(str)
 * @return {bool} результат перевірки
 * @constructor
 */
-function CheckForDNF(text, res)
+function CHECK_DNF_EQUAL(text, res)
 {
   let implStart = text.split("+"); //сплітає +
   
@@ -163,7 +163,7 @@ function CheckForDNF(text, res)
 * @return {bool} результат перевірки
 * @constructor
 */
-function CheckForKNF(text, res)
+function CHECK_KNF_EQUAL(text, res)
 {  
   let starttext = text.split(")")
   let implStart = []
